@@ -13,7 +13,7 @@ MONGO_URI = "mongodb://pawandevprasad03112010_db_user:12345@ac-j92zzlx-shard-00-
 try:
     client = MongoClient(MONGO_URI)
     db = client["gg"]               # तुम्हारा डेटाबेस नाम
-    collection = db["txtcities"]     # तुम्हारा कलेक्शन नाम
+    collection = db["txtCities"]     # तुम्हारा कलेक्शन नाम
     print("Database se connection safal ho gaya hai!")
 except Exception as e:
     print(f"MongoDB connection error: {e}")
