@@ -5,20 +5,19 @@ import os
 
 app = FastAPI()
 
-# Aapka MongoDB Connection String aur Database details
+# Aapka MongoDB Connection String
 MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB"
 client = AsyncIOMotorClient(MONGO_URI)
-db = client.get_database("search_engine_db")
-collection = db.get_collection("txtCities")
+db = client.get_database("gg")          # Database ka naam 'gg'
+collection = db.get_collection("txtCities") # Collection ka naam 'txtCities'
 
-# HTML Template with Search Button & Mobile Search Support
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Search Engine - FastAPI</title>
+    <title>Search Engine - txtCities</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -99,23 +98,16 @@ HTML_TEMPLATE = """
         .result-content {
             flex: 1;
         }
-        .result-url {
-            font-size: 14px;
-            color: #202124;
-            margin-bottom: 4px;
-        }
-        .result-title a {
+        .result-title {
             font-size: 20px;
             color: #1a0dab;
-            text-decoration: none;
-        }
-        .result-title a:hover {
-            text-decoration: underline;
+            font-weight: bold;
+            margin-bottom: 6px;
         }
         .result-desc {
             font-size: 14px;
             color: #4d5156;
-            margin-top: 6px;
+            margin-top: 4px;
             line-height: 1.5;
         }
         .result-image img {
@@ -134,8 +126,7 @@ HTML_TEMPLATE = """
             <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
         </div>
         <form method="POST" action="/">
-            <!-- type="search" karne se mobile keyboard par search/magnifying glass icon aa jata hai -->
-            <input type="search" class="search-box" name="search_query" value="{{ query }}" placeholder="Search cities..." required>
+            <input type="search" class="search-box" name="search_query" value="{{ query }}" placeholder="Search city, name, sector..." required>
             <button type="submit" class="search-btn">Search</button>
         </form>
     </div>
@@ -146,13 +137,15 @@ HTML_TEMPLATE = """
             {% for item in results %}
                 <div class="result-box">
                     <div class="result-content">
-                        <div class="result-url">{{ item.url }}</div>
-                        <div class="result-title">
-                            <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
+                        <div class="result-title">{{ item.name }}</div>
+                        <div class="result-desc">
+                            <b>City:</b> {{ item.city }} <br>
+                            <b>Sector:</b> {{ item.sector }} <br>
+                            <b>Phone:</b> {{ item.phone_no }}
+                            {% if item.rent %} <br><b>Rent:</b> {{ item.rent }} {% endif %}
                         </div>
-                        <div class="result-desc">{{ item.description }}</div>
                     </div>
-                    {% if item.image_url %}
+                    {% if item.image_url and item.image_url != "" %}
                     <div class="result-image">
                         <img src="{{ item.image_url }}" alt="Image">
                     </div>
@@ -180,13 +173,16 @@ async def search(search_query: str = Form(...)):
     query = search_query.strip()
     results = []
     if query:
+        # Aapke database ke fields (name, city, sector) ke basis par search karega
         cursor = collection.find({
             "$or": [
-                {"title": {"$regex": query, "$options": "i"}},
-                {"description": {"$regex": query, "$options": "i"}}
+                {"name": {"$regex": query, "$options": "i"}},
+                {"city": {"$regex": query, "$options": "i"}},
+                {"sector": {"$regex": query, "$options": "i"}}
             ]
         })
         results = await cursor.to_list(length=100)
         
     t = Template(HTML_TEMPLATE)
     return t.render(query=query, results=results)
+        
