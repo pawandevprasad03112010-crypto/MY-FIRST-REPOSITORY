@@ -43,7 +43,7 @@ HOME_TEMPLATE = """
 <body>
     <div class="search-container">
         <div class="logo">
-            <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+            <span>C</span><span>i</span><span>t</span><span>i</span><span>e</span><span>s</span>
         </div>
         <form method="POST" action="/">
             <input type="search" class="search-box" name="search_query" value="{{ query }}" placeholder="Search city, name, sector..." required>
@@ -152,7 +152,6 @@ async def search(search_query: str = Form(...)):
             ]
         })
         results = await cursor.to_list(length=100)
-        # Convert ObjectId to string so we can use it in URLs
         for r in results:
             r["_id"] = str(r["_id"])
             
@@ -173,4 +172,3 @@ async def get_details(item_id: str):
     item["_id"] = str(item["_id"])
     t = Template(DETAIL_TEMPLATE)
     return t.render(item=item)
-            
