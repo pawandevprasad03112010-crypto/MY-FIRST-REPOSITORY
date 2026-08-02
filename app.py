@@ -1,5 +1,3 @@
-
-
 from jinja2 import Template
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
@@ -64,3 +62,4 @@ HOME_TEMPLATE = """
                             <a href="/details/{{ item._id }}">{{ item.name }}</a>
                         </div>
                         <div class="result-desc">
+                        
