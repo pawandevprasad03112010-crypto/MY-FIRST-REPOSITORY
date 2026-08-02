@@ -7,13 +7,13 @@ from bson import ObjectId
 app = FastAPI()
 
 # ----------------- MONGODB CONNECTION -----------------
-# यहाँ अपनी असली MongoDB Atlas Connection String डालें (password और database name के साथ)
-MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345@cluster.mongodb.net/?retryWrites=true&w=majority"
+# यहाँ पासवर्ड का '@' अब '%40' से बदल दिया गया है ताकि कोई एरर न आए
+MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345%40cluster.mongodb.net/?retryWrites=true&w=majority"
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
 
-# अपने डेटाबेस और कलेक्शन का नाम यहाँ दें
-db = client["gg"]          # अपने डेटाबेस का नाम लिखें
-collection = db["txtCities"]       # अपने कलेक्शन का नाम लिखें
+# आपके डेटाबेस और कलेक्शन का नाम
+db = client["gg"]
+collection = db["txtCities"]
 # ------------------------------------------------------
 
 # HTML टेम्पलेट (सिंगल फाइल स्ट्रक्चर)
@@ -229,7 +229,6 @@ async def home(request: Request):
 
 @app.post("/search", response_class=HTMLResponse)
 async def search(request: Request, query: str = Form(...)):
-    # MongoDB से केस-इन्सेंसिटिव (Case-insensitive) सर्च करना
     regex_query = {"$regex": query, "$options": "i"}
     cursor = collection.find({
         "$or": [
@@ -240,7 +239,7 @@ async def search(request: Request, query: str = Form(...)):
     
     filtered_data = []
     async for document in cursor:
-        document["id"] = str(document["_id"])  # MongoDB _id को स्ट्रिंग में बदलना
+        document["id"] = str(document["_id"])
         filtered_data.append(document)
 
     t = Template(HTML_TEMPLATE)
