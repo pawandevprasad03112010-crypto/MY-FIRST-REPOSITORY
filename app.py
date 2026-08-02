@@ -1,3 +1,6 @@
+
+
+from jinja2 import Template
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -130,9 +133,6 @@ DETAIL_TEMPLATE = """
     </div>
 </body>
 </html>
-"""
-
-from jinja2 import Template
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
