@@ -8,7 +8,7 @@ app = FastAPI()
 
 # ----------------- MONGODB CONNECTION -----------------
 # यहाँ पासवर्ड का '@' अब '%40' से बदल दिया गया है ताकि कोई एरर न आए
-MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345%40cluster.mongodb.net/?retryWrites=true&w=majority"
+MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB"
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
 
 # आपके डेटाबेस और कलेक्शन का नाम
