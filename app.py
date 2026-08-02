@@ -7,16 +7,14 @@ from bson import ObjectId
 app = FastAPI()
 
 # ----------------- MONGODB CONNECTION -----------------
-# यहाँ पासवर्ड का '@' अब '%40' से बदल दिया गया है ताकि कोई एरर न आए
-MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:1234512345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB"
+# यहाँ नीचे दिए गए कोट्स के अंदर अपना MongoDB Atlas URL पेस्ट करें (जैसे: "mongodb+srv://...")
+MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:<db_password>@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB"
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
 
-# आपके डेटाबेस और कलेक्शन का नाम
 db = client["gg"]
 collection = db["txtCities"]
 # ------------------------------------------------------
 
-# HTML टेम्पलेट (सिंगल फाइल स्ट्रक्चर)
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="hi">
@@ -130,34 +128,20 @@ HTML_TEMPLATE = """
         .back-btn:hover {
             background-color: #475569;
         }
-        .image-gallery {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            scroll-behavior: smooth;
-        }
-        .image-gallery::-webkit-scrollbar {
-            height: 8px;
-        }
-        .image-gallery::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        .gallery-img {
-            width: 300px;
-            height: 220px;
+        .detail-image {
+            width: 100%;
+            max-height: 350px;
             object-fit: cover;
             border-radius: 8px;
-            flex-shrink: 0;
+            margin-bottom: 20px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
         .scrollable-info {
             max-height: 250px;
             overflow-y: auto;
             padding-right: 10px;
-            line-height: 1.6;
+            line-height: 1.8;
+            font-size: 16px;
         }
         .no-result {
             text-align: center;
@@ -174,20 +158,19 @@ HTML_TEMPLATE = """
         {% if detail_item %}
             <div class="detail-container">
                 <a href="/" class="back-btn">&#8592; Back</a>
-                <h2>{{ detail_item.title }}</h2>
+                <h2>{{ detail_item.name }}</h2>
                 
-                <div class="image-gallery">
-                    {% for img_url in detail_item.images %}
-                        <img src="{{ img_url }}" alt="Property Image" class="gallery-img">
-                    {% endfor %}
-                </div>
+                {% if detail_item.image_url %}
+                    <img src="{{ detail_item.image_url }}" alt="Image" class="detail-image">
+                {% endif %}
 
-                <h3>Location: {{ detail_item.location }}</h3>
+                <h3>City: {{ detail_item.city }}</h3>
+                <h3>Sector: {{ detail_item.sector }}</h3>
                 <hr>
                 
                 <div class="scrollable-info">
-                    <h3>Detailed Information:</h3>
-                    <p>{{ detail_item.description }}</p>
+                    <p><strong>📞 Phone No:</strong> {{ detail_item.phone_no }}</p>
+                    <p><strong>💰 Rent:</strong> {{ detail_item.rent if detail_item.rent else 'N/A' }}</p>
                 </div>
             </div>
 
@@ -203,10 +186,14 @@ HTML_TEMPLATE = """
                     <div class="grid-container">
                         {% for item in results %}
                             <div class="card" onclick="window.location.href='/item/{{ item.id }}'">
-                                <img src="{{ item.images[0] }}" alt="Photo">
+                                {% if item.image_url %}
+                                    <img src="{{ item.image_url }}" alt="Photo">
+                                {% else %}
+                                    <img src="https://res.cloudinary.com/demo/image/upload/v1652345678/sample.jpg" alt="Default">
+                                {% endif %}
                                 <div class="card-content">
-                                    <h3>{{ item.title }}</h3>
-                                    <p>📍 {{ item.location }}</p>
+                                    <h3>{{ item.name }}</h3>
+                                    <p>📍 {{ item.sector }}, {{ item.city }}</p>
                                 </div>
                             </div>
                         {% endfor %}
@@ -232,8 +219,9 @@ async def search(request: Request, query: str = Form(...)):
     regex_query = {"$regex": query, "$options": "i"}
     cursor = collection.find({
         "$or": [
-            {"location": regex_query},
-            {"title": regex_query}
+            {"city": regex_query},
+            {"sector": regex_query},
+            {"name": regex_query}
         ]
     })
     
@@ -256,4 +244,4 @@ async def item_detail(request: Request, item_id: str):
 
     t = Template(HTML_TEMPLATE)
     return t.render(request=request, detail_item=item, searched=False)
-    
+
