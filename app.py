@@ -85,7 +85,7 @@ HOME_TEMPLATE = """
 """
 
 # Detail Page Template (Image at Top, Info Below)
-DETAIL_TEMPLATE = """
+DETAIL_TEMPLATE = ""
 <!DOCTYPE html>
 <html lang="en">
 <head>
