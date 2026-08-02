@@ -8,7 +8,7 @@ app = FastAPI()
 
 # ----------------- MONGODB CONNECTION -----------------
 # यहाँ नीचे दिए गए कोट्स के अंदर अपना MongoDB Atlas URL पेस्ट करें (जैसे: "mongodb+srv://...")
-MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:<db_password>@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB"
+MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:1234512345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB"
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
 
 db = client["gg"]
