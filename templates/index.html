@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>Dictionary Search Engine</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f2f4f7;
+        margin: 0;
+        padding: 30px;
+    }
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+    }
+    .search-container {
+        max-width: 600px;
+        margin: 0 auto 20px auto;
+    }
+    #searchBox {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 18px;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
+    #searchBox:focus {
+        outline: none;
+        border-color: #3498db;
+    }
+    .results-box {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .result-line {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+        border-bottom: 1px solid #eee;
+        text-decoration: none;
+        color: #333;
+        transition: background 0.2s;
+    }
+    .result-line:last-child {
+        border-bottom: none;
+    }
+    .result-line:hover {
+        background: #f0f8ff;
+    }
+    .thumb {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex-shrink: 0;
+        background: #eee;
+    }
+    .word-title {
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .no-results {
+        text-align: center;
+        color: #888;
+        padding: 16px;
+    }
+</style>
+</head>
+<body>
+
+<h1>Dictionary Search</h1>
+
+<div class="search-container">
+    <input type="text" id="searchBox" placeholder="Koi bhi alphabet ya word type karein..." autocomplete="off">
+</div>
+
+<div class="results-box" id="resultsBox">
+    <!-- Yahan JS results daalega -->
+</div>
+
+<script>
+const searchBox = document.getElementById("searchBox");
+const resultsBox = document.getElementById("resultsBox");
+
+searchBox.addEventListener("input", function () {
+    const query = searchBox.value.trim();
+
+    if (query === "") {
+        resultsBox.innerHTML = "";
+        return;
+    }
+
+    fetch("/api/search?q=" + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(data => {
+            resultsBox.innerHTML = "";
+
+            if (data.length === 0) {
+                resultsBox.innerHTML = '<div class="no-results">Koi match nahi mila</div>';
+                return;
+            }
+
+            data.forEach(item => {
+                const line = document.createElement("a");
+                line.className = "result-line";
+                line.href = "/word/" + item.id;
+
+                line.innerHTML = `
+                    <img class="thumb" src="${item.photo}" alt="${item.word}">
+                    <span class="word-title">${item.word}</span>
+                `;
+
+                resultsBox.appendChild(line);
+            });
+        });
+});
+</script>
+
+</body>
+</html>
