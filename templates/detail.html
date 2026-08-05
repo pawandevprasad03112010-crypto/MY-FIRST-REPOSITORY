@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>{{ item.word }} - Details</title>
+<title>{{ item.name }} - Details</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -31,18 +31,27 @@
         max-height: 350px;
         object-fit: cover;
         display: block;
+        background: #ddd;
     }
     .word-heading {
-        font-size: 30px;
+        font-size: 28px;
         color: #2c3e50;
-        margin: 20px 0 10px 0;
+        margin: 20px 0 6px 0;
     }
-    .meaning {
+    .location-text {
+        color: #777;
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+    .details-list {
         text-align: left;
         padding: 0 24px 24px 24px;
-        font-size: 17px;
-        line-height: 1.6;
+        font-size: 16px;
+        line-height: 1.8;
         color: #444;
+    }
+    .details-list b {
+        color: #2c3e50;
     }
 </style>
 </head>
@@ -51,9 +60,23 @@
 <a class="back-link" href="/">&larr; Search par wapas jaayein</a>
 
 <div class="card">
-    <img class="big-photo" src="{{ item.photo }}" alt="{{ item.word }}">
-    <div class="word-heading">{{ item.word }}</div>
-    <div class="meaning">{{ item.meaning }}</div>
+    {% if item.image_url %}
+        <img class="big-photo" src="{{ item.image_url }}" alt="{{ item.name }}">
+    {% endif %}
+    <div class="word-heading">{{ item.name }}</div>
+    <div class="location-text">{{ item.location }}</div>
+
+    <div class="details-list">
+        <p><b>Phone:</b> {{ item.phone_no }}</p>
+
+        {% if item.rent %}
+            <p><b>Rent:</b>
+                {% for key, value in item.rent.items() %}
+                    {{ key }}: {{ value }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+        {% endif %}
+    </div>
 </div>
 
 </body>
