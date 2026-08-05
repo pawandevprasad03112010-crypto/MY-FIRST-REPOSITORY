@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<title>Dictionary Search Engine</title>
+<title>PG Search</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -60,11 +60,19 @@
         object-fit: cover;
         border-radius: 6px;
         flex-shrink: 0;
-        background: #eee;
+        background: #ddd;
+    }
+    .info {
+        display: flex;
+        flex-direction: column;
     }
     .word-title {
         font-size: 18px;
         font-weight: bold;
+    }
+    .sub-text {
+        font-size: 14px;
+        color: #777;
     }
     .no-results {
         text-align: center;
@@ -75,10 +83,10 @@
 </head>
 <body>
 
-<h1>Dictionary Search</h1>
+<h1>PG Search</h1>
 
 <div class="search-container">
-    <input type="text" id="searchBox" placeholder="Koi bhi alphabet ya word type karein..." autocomplete="off">
+    <input type="text" id="searchBox" placeholder="City, sector ya PG naam type karein..." autocomplete="off">
 </div>
 
 <div class="results-box" id="resultsBox">
@@ -88,6 +96,7 @@
 <script>
 const searchBox = document.getElementById("searchBox");
 const resultsBox = document.getElementById("resultsBox");
+const placeholderImg = "https://via.placeholder.com/50?text=No+Img";
 
 searchBox.addEventListener("input", function () {
     const query = searchBox.value.trim();
@@ -112,9 +121,14 @@ searchBox.addEventListener("input", function () {
                 line.className = "result-line";
                 line.href = "/word/" + item.id;
 
+                const imgSrc = item.image_url && item.image_url.trim() !== "" ? item.image_url : placeholderImg;
+
                 line.innerHTML = `
-                    <img class="thumb" src="${item.photo}" alt="${item.word}">
-                    <span class="word-title">${item.word}</span>
+                    <img class="thumb" src="${imgSrc}" alt="${item.name}">
+                    <div class="info">
+                        <span class="word-title">${item.name}</span>
+                        <span class="sub-text">${item.location}</span>
+                    </div>
                 `;
 
                 resultsBox.appendChild(line);
@@ -125,3 +139,4 @@ searchBox.addEventListener("input", function () {
 
 </body>
 </html>
+
