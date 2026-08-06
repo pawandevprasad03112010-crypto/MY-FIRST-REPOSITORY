@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nocte Idol S1 - Voting Platform</title>
+    <title>Nocte Idol S1 - Voting</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,293 +11,315 @@
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
+
         body {
             background-color: #0b0f19;
             color: #ffffff;
-            padding: 12px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         .container {
             width: 100%;
             max-width: 480px;
-            margin: 0 auto;
-        }
-        /* Top bar */
-        .top-bar {
             display: flex;
-            justify-content: flex-end;
-            margin-bottom: 16px;
-        }
-        .signin-google {
-            background-color: #ffffff;
-            color: #0b0f19;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
         }
-        /* Warning Box */
-        .warning-box {
-            background-color: #121826;
-            border: 1px solid #2a3447;
-            border-radius: 12px;
-            padding: 16px;
+
+        /* Notice Banner */
+        .notice-banner {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 20px;
             text-align: center;
+            width: 100%;
             margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-        .warning-title {
-            color: #ffb703;
-            font-size: 22px;
-            font-weight: 800;
+
+        .notice-icon {
+            font-size: 32px;
             margin-bottom: 8px;
         }
-        .warning-text {
-            font-size: 13px;
-            color: #cbd5e1;
-            line-height: 1.5;
-            margin-bottom: 12px;
+
+        .notice-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #f59e0b;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
         }
-        .warning-footer {
-            font-size: 12px;
+
+        .notice-text {
+            font-size: 13px;
             color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .notice-footer {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
+            font-size: 12px;
+            color: #38bdf8;
+            border-top: 1px solid #1e293b;
+            padding-top: 12px;
         }
-        /* Voting info */
+
+        /* Header section */
         .voting-info {
             text-align: center;
             margin-bottom: 24px;
+            width: 100%;
         }
+
         .voting-end {
-            font-size: 12px;
-            color: #f59e0b;
+            font-size: 13px;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            color: #94a3b8;
+            letter-spacing: 1px;
             margin-bottom: 6px;
         }
-        .event-title {
-            font-size: 26px;
-            font-weight: 800;
+
+        .timer-highlight {
+            color: #facc15;
+        }
+
+        .main-title {
+            font-size: 28px;
+            font-weight: 900;
             margin-bottom: 8px;
-            background: linear-gradient(90deg, #ffffff, #93c5fd);
+            background: linear-gradient(to right, #60a5fa, #c084fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .event-sub {
+
+        .subtitle {
             font-size: 13px;
             color: #94a3b8;
-            line-height: 1.4;
-            padding: 0 10px;
+            margin-bottom: 16px;
         }
-        /* Action buttons */
+
         .action-buttons {
             display: flex;
             gap: 12px;
+            width: 100%;
+            justify-content: center;
             margin-bottom: 30px;
         }
-        .btn-primary {
+
+        .btn {
             flex: 1;
-            background: linear-gradient(135deg, #1d4ed8, #2563eb);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 50px;
             font-weight: 700;
             font-size: 14px;
             cursor: pointer;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
         }
-        .btn-secondary {
-            flex: 1;
+
+        .btn-vote {
+            background-color: #2563eb;
+            color: white;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-install {
             background-color: #1e293b;
             color: white;
-            border: 1px solid #334155;
-            padding: 14px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            text-align: center;
+            border: 1px solid #475569;
         }
-        /* Section Header */
-        .section-header {
-            text-align: center;
+
+        .section-title {
             font-size: 22px;
             font-weight: 800;
             letter-spacing: 2px;
-            margin-bottom: 24px;
-            color: #ffffff;
-            border-bottom: 2px solid #1e293b;
-            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
         }
+
         /* Contestants Grid */
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
+            width: 100%;
             margin-bottom: 30px;
         }
+
         .card {
-            background: linear-gradient(180deg, #131b2e 0%, #0d1322 100%);
-            border: 1px solid #1e293b;
-            border-radius: 14px;
+            background-color: #111827;
+            border-radius: 12px;
             overflow: hidden;
+            border: 1px solid #1f2937;
             display: flex;
             flex-direction: column;
-            position: relative;
+            justify-content: space-between;
         }
+
         .card-img-container {
+            position: relative;
             width: 100%;
             height: 180px;
-            position: relative;
             background-color: #000;
         }
+
+        .contestant-number {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 20px;
+            font-weight: 900;
+            color: #38bdf8;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            z-index: 2;
+        }
+
         .card-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .contestant-number {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 22px;
-            font-weight: 900;
-            color: #38bdf8;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
+
         .card-body {
             padding: 10px;
-            text-align: center;
-            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 8px;
         }
+
         .contestant-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
-            color: #ffffff;
-            margin-bottom: 2px;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
-            min-height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+
         .contestant-label {
             font-size: 11px;
-            color: #94a3b8;
-            margin-bottom: 10px;
-            text-transform: uppercase;
+            color: #9ca3af;
         }
+
         .card-actions {
             display: flex;
             gap: 6px;
         }
-        .card-btn-login {
+
+        .card-btn-login, .card-btn-share {
             flex: 1;
-            background-color: #1d4ed8;
-            color: white;
+            padding: 6px 0;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
             border: none;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
+            text-align: center;
         }
+
+        .card-btn-login {
+            background-color: #2563eb;
+            color: white;
+        }
+
         .card-btn-share {
-            flex: 1;
-            background-color: #1e293b;
-            color: #38bdf8;
-            border: 1px solid #334155;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
+            background-color: #059669;
+            color: white;
         }
+
         /* Footer */
         .footer {
+            font-size: 13px;
+            color: #6b7280;
             text-align: center;
-            font-size: 12px;
-            color: #64748b;
             padding: 20px 0;
-            border-top: 1px solid #1e293b;
+            border-top: 1px solid #1f2937;
+            width: 100%;
         }
-        /* Toast Popup */
+
+        /* Toast Notification */
         #toast {
             visibility: hidden;
-            min-width: 250px;
-            background-color: #10b981;
+            min-width: 200px;
+            background-color: #333;
             color: #fff;
             text-align: center;
             border-radius: 8px;
-            padding: 16px;
+            padding: 12px;
             position: fixed;
             z-index: 1000;
             left: 50%;
             bottom: 30px;
             transform: translateX(-50%);
-            font-size: 15px;
-            font-weight: 700;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            transition: visibility 0s, opacity 0.5s ease-in-out;
-            opacity: 0;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
+
         #toast.show {
             visibility: visible;
-            opacity: 1;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from { bottom: 0; opacity: 0; }
+            to { bottom: 30px; opacity: 1; }
+        }
+
+        @keyframes fadeout {
+            from { bottom: 30px; opacity: 1; }
+            to { bottom: 0; opacity: 0; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Top bar -->
-    <div class="top-bar">
-        <button class="signin-google" onclick="showLoginSuccess()">Sign in with Google</button>
-    </div>
-
-    <!-- Warning Box -->
-    <div class="warning-box">
-        <div class="warning-title">SORRY!</div>
-        <div class="warning-text">
-            If a contestant is incorrectly marked as "VOTED", tap <b>VOTED</b> button to access "Yes Withdraw" Vote, then vote again.
+    <!-- Notice Banner -->
+    <div class="notice-banner">
+        <div class="notice-icon">⚠️</div>
+        <div class="notice-title">Sorry!</div>
+        <div class="notice-text">
+            If a contestant is incorrectly marked as “VOTED”, tap <strong>VOTED</strong> button to access <strong>"Yes Withdraw"</strong> Vote, then vote again.
         </div>
-        <div class="warning-footer">
+        <div class="notice-footer">
             <span>✨</span> Thanks for your patience—we're working to fix this.
         </div>
     </div>
 
-    <!-- Voting countdown & info -->
+    <!-- Header / Voting Info -->
     <div class="voting-info">
-        <div class="voting-end">VOTING END IN<br>• 4 DAYS • 13 HRS • 53 MIN</div>
-        <div class="event-title">Nocte Idol S1</div>
-        <div class="event-sub">Who will be the 1st Nocte Idol? Choose the Star today.</div>
+        <div class="voting-end">VOTING END IN</div>
+        <div class="voting-end timer-highlight">🟢 4 DAYS • 13 HRS • 53 MIN</div>
+        <h1 class="main-title">Nocte Idol S1</h1>
+        <p class="subtitle">Who will be the 1st Nocte Idol? Choose the Star today.</p>
+        
+        <div class="action-buttons">
+            <button class="btn btn-vote" onclick="showLoginSuccess()">
+                Login to Vote ↓
+            </button>
+            <button class="btn btn-install" onclick="showInstallMessage()">
+                Install App
+            </button>
+        </div>
     </div>
 
-    <!-- Action buttons -->
-    <div class="action-buttons">
-        <button class="btn-primary" onclick="showVoteSuccess()">LOGIN TO VOTE ↓</button>
-        <button class="btn-secondary" onclick="showInstallMessage()">Install App</button>
-    </div>
+    <h2 class="section-title">CONTESTANTS</h2>
 
-    <!-- Section Header -->
-    <div class="section-header">CONTESTANTS</div>
-
-    <!-- Contestants Grid -->
+    <!-- Grid of Contestants -->
     <div class="grid">
         <!-- 01 -->
         <div class="card">
@@ -411,7 +433,7 @@
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#07</span>
-                <img class="card-img" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80" alt="Yamna Rangwang">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786035957/Screenshot_2026-08-06-22-33-21-58_40deb401b9ffe8e1df2f1cc5ba480b12_mfzvlb.jpg" alt="Yamna Rangwang">
             </div>
             <div class="card-body">
                 <div>
@@ -429,7 +451,7 @@
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#08</span>
-                <img class="card-img" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" alt="Ngongban Moika">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786035995/Screenshot_2026-08-06-22-33-36-47_40deb401b9ffe8e1df2f1cc5ba480b12_nr2xbs.jpg" alt="Ngongban Moika">
             </div>
             <div class="card-body">
                 <div>
@@ -443,11 +465,11 @@
             </div>
         </div>
 
-        <!-- #09: PAWAN DEV PRASAD (Your photo inserted) -->
+        <!-- #09: PAWAN DEV PRASAD -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#09</span>
-                <img class="card-img" src="data:image/png;base64,...(your image base64 data)..." alt="Pawan Dev Prasad">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786035691/IMG20260806221127_delrat.jpg" alt="Pawan Dev Prasad">
             </div>
             <div class="card-body">
                 <div>
@@ -500,5 +522,4 @@
 </script>
 
 </body>
-          </html>
-  
+</html>
