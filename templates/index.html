@@ -219,7 +219,7 @@
             gap: 6px;
         }
 
-        .card-btn-vote, .card-btn-share {
+        .card-btn-action, .card-btn-share {
             flex: 1;
             padding: 6px 0;
             border-radius: 4px;
@@ -230,13 +230,86 @@
             text-align: center;
         }
 
-        .card-btn-vote {
+        .card-btn-action {
             background-color: #2563eb;
             color: white;
         }
 
-        .card-btn-share {
+        .card-btn-action.voted {
             background-color: #059669;
+        }
+
+        .card-btn-share {
+            background-color: #374151;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #161e2e;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 360px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #38bdf8;
+            margin-bottom: 12px;
+        }
+
+        .modal-text {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-no {
+            background-color: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #475569;
+        }
+
+        .btn-yes {
+            background-color: #0284c7;
             color: white;
         }
 
@@ -253,41 +326,39 @@
         /* Toast Notification */
         #toast {
             visibility: hidden;
-            min-width: 200px;
-            background-color: #333;
-            color: #fff;
+            min-width: 220px;
+            background-color: #00d2ff;
+            color: #000;
             text-align: center;
             border-radius: 8px;
-            padding: 12px;
+            padding: 14px;
             position: fixed;
-            z-index: 1000;
+            z-index: 3000;
             left: 50%;
-            bottom: 30px;
+            top: 20px;
             transform: translateX(-50%);
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            font-size: 16px;
+            font-weight: 800;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         #toast.show {
             visibility: visible;
-            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadeInOut 3s;
         }
 
-        @keyframes fadein {
-            from { bottom: 0; opacity: 0; }
-            to { bottom: 30px; opacity: 1; }
-        }
-
-        @keyframes fadeout {
-            from { bottom: 30px; opacity: 1; }
-            to { bottom: 0; opacity: 0; }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- Notice Banner -->
     <div class="notice-banner">
         <div class="notice-icon">⚠️</div>
         <div class="notice-title">Sorry!</div>
@@ -299,6 +370,7 @@
         </div>
     </div>
 
+    <!-- Header / Voting Info -->
     <div class="voting-info">
         <div class="voting-end">VOTING END IN</div>
         <div class="voting-end timer-highlight">🟢 4 DAYS • 13 HRS • 53 MIN</div>
@@ -306,7 +378,7 @@
         <p class="subtitle">Who will be the 1st Nocte Idol? Choose the Star today.</p>
         
         <div class="action-buttons">
-            <button class="btn btn-vote" onclick="showLoginSuccess()">
+            <button class="btn btn-vote" id="mainLoginBtn" onclick="handleMainLogin()">
                 Login to Vote ↓
             </button>
             <button class="btn btn-install" onclick="showInstallMessage()">
@@ -317,195 +389,177 @@
 
     <h2 class="section-title">CONTESTANTS</h2>
 
-    <div class="grid">
-        <div class="card">
-            <div class="card-img-container">
-                <span class="contestant-number">#01</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-57-43-62_99c04817c0de5652397fc8b56c3b3817_cg8urx.jpg" alt="Contestant 01">
-            </div>
-            <div class="card-body">
-                <div>
-                    <div class="contestant-name">CONTESTANT 01</div>
-                    <div class="contestant-label">Contestant</div>
-                </div>
-                <div class="card-actions">
-                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Contestant 01')">SHARE</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-img-container">
-                <span class="contestant-number">#02</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-58-22-35_99c04817c0de5652397fc8b56c3b3817_z1opld.jpg" alt="Contestant 02">
-            </div>
-            <div class="card-body">
-                <div>
-                    <div class="contestant-name">CONTESTANT 02</div>
-                    <div class="contestant-label">Contestant</div>
-                </div>
-                <div class="card-actions">
-                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Contestant 02')">SHARE</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-img-container">
-                <span class="contestant-number">#03</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-58-39-21_99c04817c0de5652397fc8b56c3b3817_ey8" alt="Contestant 03">
-            </div>
-            <div class="card-body">
-                <div>
-                    <div class="contestant-name">CONTESTANT 03</div>
-                    <div class="contestant-label">Contestant</div>
-                </div>
-                <div class="card-actions">
-                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Contestant 03')">SHARE</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-img-container">
-                <span class="contestant-number">#04</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-58-58-80_99c04817c0de5652397fc8b56c3b3817_bgsosg.jpg" alt="Contestant 04">
-            </div>
-            <div class="card-body">
-                <div>
-                    <div class="contestant-name">CONTESTANT 04</div>
-                    <div class="contestant-label">Contestant</div>
-                </div>
-                <div class="card-actions">
-                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Contestant 04')">SHARE</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-img-container">
-                <span class="contestant-number">#05</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-56-18-38_99c04817c0de5652397fc8b56c3b3817_zoiyiy.jpg" alt="Contestant 05">
-            </div>
-            <div class="card-body">
-                <div>
-                    <div class="contestant-name">CONTESTANT 05</div>
-                    <div class="contestant-label">Contestant</div>
-                </div>
-                <div class="card-actions">
-                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Contestant 05')">SHARE</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-img-container">
-                <span class="contestant-number">#06</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-56-38-59_99c04817c0de5652397fc8b56c3b3817_rjxkaa.jpg" alt="Contestant 06">
-            </div>
-            <div class="card-body">
-                <div>
-                    <div class="contestant-name">CONTESTANT 06</div>
-                    <div class="contestant-label">Contestant</div>
-                </div>
-                <div class="card-actions">
-                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Contestant 06')">SHARE</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-img-container">
-                <span class="contestant-number">#07</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037520/Screenshot_2026-08-06-22-57-01-96_99c04817c0de5652397fc8b56c3b3817_w3vevb.jpg" alt="Contestant 07">
-            </div>
-            <div class="card-body">
-                <div>
-                    <div class="contestant-name">CONTESTANT 07</div>
-                    <div class="contestant-label">Contestant</div>
-                </div>
-                <div class="card-actions">
-                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Contestant 07')">SHARE</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-img-container">
-                <span class="contestant-number">#08</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-57-21-32_99c04817c0de5652397fc8b56c3b3817_qun4i7.jpg" alt="Contestant 08">
-            </div>
-            <div class="card-body">
-                <div>
-                    <div class="contestant-name">CONTESTANT 08</div>
-                    <div class="contestant-label">Contestant</div>
-                </div>
-                <div class="card-actions">
-                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Contestant 08')">SHARE</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-img-container">
-                <span class="contestant-number">#09</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037530/IMG20260806221127_lcztqs.jpg" alt="Pawan Dev Prasad">
-            </div>
-            <div class="card-body">
-                <div>
-                    <div class="contestant-name">PAWAN DEV PRASAD</div>
-                    <div class="contestant-label">Contestant</div>
-                </div>
-                <div class="card-actions">
-                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Pawan Dev Prasad')">SHARE</button>
-                </div>
-            </div>
-        </div>
+    <!-- Grid of Contestants -->
+    <div class="grid" id="contestantsGrid">
+        <!-- Cards will be dynamically generated by JavaScript -->
     </div>
 
+    <!-- Footer -->
     <div class="footer">
         Online Voting Platform
     </div>
 </div>
 
+<!-- Withdraw Modal -->
+<div class="modal-overlay" id="withdrawModal">
+    <div class="modal-content">
+        <div class="modal-title">
+            <span>⚠️</span> Withdraw Vote
+        </div>
+        <div class="modal-text">
+            Are you sure you want to withdraw your vote for this contestant?
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn btn-no" onclick="handleNoKeepIt()">NO, KEEP IT</button>
+            <button class="modal-btn btn-yes" onclick="handleYesWithdraw()">YES, WITHDRAW</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast message element -->
 <div id="toast">Message</div>
 
 <script>
-    function showToast(message, bgColor) {
+    // Contestants Data with specific Cloudinary URLs
+    const contestants = [
+        { id: 1, name: "CONTESTANT 01", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-57-43-62_99c04817c0de5652397fc8b56c3b3817_cg8urx.jpg" },
+        { id: 2, name: "CONTESTANT 02", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-58-22-35_99c04817c0de5652397fc8b56c3b3817_z1opld.jpg" },
+        { id: 3, name: "CONTESTANT 03", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-58-39-21_99c04817c0de5652397fc8b56c3b3817_ey8swx.jpg" },
+        { id: 4, name: "CONTESTANT 04", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-58-58-80_99c04817c0de5652397fc8b56c3b3817_bgsosg.jpg" },
+        { id: 5, name: "CONTESTANT 05", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-56-18-38_99c04817c0de5652397fc8b56c3b3817_zoiyiy.jpg" },
+        { id: 6, name: "CONTESTANT 06", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-56-38-59_99c04817c0de5652397fc8b56c3b3817_rjxkaa.jpg" },
+        { id: 7, name: "CONTESTANT 07", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037520/Screenshot_2026-08-06-22-57-01-96_99c04817c0de5652397fc8b56c3b3817_w3vevb.jpg" },
+        { id: 8, name: "CONTESTANT 08", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-57-21-32_99c04817c0de5652397fc8b56c3b3817_qun4i7.jpg" },
+        { id: 9, name: "PAWAN DEV PRASAD", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037530/IMG20260806221127_lcztqs.jpg" }
+    ];
+
+    let isLoggedइंट = false; // Tracks global login status
+    // Track state for each contestant: 'LOGIN', 'VOTE', or 'VOTED'
+    let contestantStates = {};
+    let activeWithdrawId = null;
+
+    contestants.forEach(c => {
+        contestantStates[c.id] = 'LOGIN';
+    });
+
+    function renderGrid() {
+        const grid = document.getElementById('contestantsGrid');
+        grid.innerHTML = '';
+
+        contestants.forEach(c => {
+            const state = contestantStates[c.id];
+            let btnText = 'LOGIN';
+            let btnClass = 'card-btn-action';
+
+            if (state === 'LOGIN') {
+                btnText = 'LOGIN';
+            } else if (state === 'VOTE') {
+                btnText = 'VOTE';
+            } else if (state === 'VOTED') {
+                btnText = 'VOTED';
+                btnClass += ' voted';
+            }
+
+            const formattedNum = String(c.id).padStart(2, '0');
+
+            const cardHTML = `
+                <div class="card">
+                    <div class="card-img-container">
+                        <span class="contestant-number">#${formattedNum}</span>
+                        <img class="card-img" src="${c.url}" alt="${c.name}">
+                    </div>
+                    <div class="card-body">
+                        <div>
+                            <div class="contestant-name">${c.name}</div>
+                            <div class="contestant-label">Contestant</div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="${btnClass}" onclick="handleContestantAction(${c.id})">${btnText}</button>
+                            <button class="card-btn-share" onclick="sharedContestant('${c.name}')">SHARE</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            grid.innerHTML += cardHTML;
+        });
+    }
+
+    function showToast(message) {
         const toast = document.getElementById("toast");
         toast.innerText = message;
-        toast.style.backgroundColor = bgColor;
         toast.className = "show";
         setTimeout(function(){
-            toast.className = toast.className.replace("show", "");
+            toast.className = "";
         }, 3000);
     }
 
-    function showLoginSuccess() {
-        showToast("Login Successful", "#2563eb");
+    function handleMainLogin() {
+        if (!isLoggedIn) {
+            // Simulate Google Login Prompt/Selection
+            setTimeout(() => {
+                isLoggedIn = true;
+                // Update all cards that were 'LOGIN' to 'VOTE'
+                for (let id in contestantStates) {
+                    if (contestantStates[id] === 'LOGIN') {
+                        contestantStates[id] = 'VOTE';
+                    }
+                }
+                document.getElementById('mainLoginBtn').innerText = "Logged In ✓";
+                renderGrid();
+                showToast("Login Successful");
+            }, 500);
+        } else {
+            showToast("Already Logged In");
+        }
     }
 
-    function showVoteSuccess() {
-        showToast("VOTE SUCCESSFUL", "#10b981");
+    function handleContestantAction(id) {
+        const currentState = contestantStates[id];
+
+        if (currentState === 'LOGIN') {
+            // Trigger Google Login first
+            handleMainLogin();
+        } else if (currentState === 'VOTE') {
+            // Cast vote successfully
+            contestantStates[id] = 'VOTED';
+            renderGrid();
+            showToast("Vote cast successfully!");
+        } else if (currentState === 'VOTED') {
+            // Open withdraw modal
+            activeWithdrawId = id;
+            document.getElementById('withdrawModal').style.display = 'flex';
+        }
+    }
+
+    function handleNoKeepIt() {
+        document.getElementById('withdrawModal').style.display = 'none';
+        showToast("LAURA CHUSO");
+        activeWithdrawId = null;
+    }
+
+    function handleYesWithdraw() {
+        if (activeWithdrawId !== null) {
+            contestantStates[activeWithdrawId] = 'VOTE';
+            renderGrid();
+            showToast("Vote withdrawn successfully");
+        }
+        document.getElementById('withdrawModal').style.display = 'none';
+        activeWithdrawId = null;
     }
 
     function showInstallMessage() {
-        showToast("App Download Starting...", "#f59e0b");
+        showToast("App Download Starting...");
     }
 
     function sharedContestant(name) {
-        showToast("Link copied for " + name, "#3b82f6");
+        showToast("Link copied for " + name);
     }
+
+    // Initial Render
+    window.onload = function() {
+        renderGrid();
+    };
 </script>
 
 </body>
-                    </html>
+</html>
