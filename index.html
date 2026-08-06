@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nocte Idol S1 - Voting Platform</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #0b0f19;
+            color: #ffffff;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        /* Top bar */
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+        .signin-google {
+            background-color: #ffffff;
+            color: #0b0f19;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        /* Warning Box */
+        .warning-box {
+            background-color: #121826;
+            border: 1px solid #2a3447;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .warning-title {
+            color: #ffb703;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .warning-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .warning-footer {
+            font-size: 12px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        /* Voting info */
+        .voting-info {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .voting-end {
+            font-size: 12px;
+            color: #f59e0b;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .event-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #ffffff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .event-sub {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.4;
+            padding: 0 10px;
+        }
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn-secondary {
+            flex: 1;
+            background-color: #1e293b;
+            color: white;
+            border: 1px solid #334155;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+        }
+        /* Section Header */
+        .section-header {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            color: #ffffff;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 10px;
+        }
+        /* Contestants Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: linear-gradient(180deg, #131b2e 0%, #0d1322 100%);
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .card-img-container {
+            width: 100%;
+            height: 180px;
+            position: relative;
+            background-color: #000;
+        }
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .contestant-number {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 22px;
+            font-weight: 900;
+            color: #38bdf8;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        .card-body {
+            padding: 10px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .contestant-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .contestant-label {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .card-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .card-btn-login {
+            flex: 1;
+            background-color: #1d4ed8;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .card-btn-share {
+            flex: 1;
+            background-color: #1e293b;
+            color: #38bdf8;
+            border: 1px solid #334155;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            padding: 20px 0;
+            border-top: 1px solid #1e293b;
+        }
+        /* Toast Popup */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #10b981;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 15px;
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: visibility 0s, opacity 0.5s ease-in-out;
+            opacity: 0;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Top bar -->
+    <div class="top-bar">
+        <button class="signin-google" onclick="showLoginSuccess()">Sign in with Google</button>
+    </div>
+
+    <!-- Warning Box -->
+    <div class="warning-box">
+        <div class="warning-title">SORRY!</div>
+        <div class="warning-text">
+            If a contestant is incorrectly marked as "VOTED", tap <b>VOTED</b> button to access "Yes Withdraw" Vote, then vote again.
+        </div>
+        <div class="warning-footer">
+            <span>✨</span> Thanks for your patience—we're working to fix this.
+        </div>
+    </div>
+
+    <!-- Voting countdown & info -->
+    <div class="voting-info">
+        <div class="voting-end">VOTING END IN<br>• 4 DAYS • 13 HRS • 53 MIN</div>
+        <div class="event-title">Nocte Idol S1</div>
+        <div class="event-sub">Who will be the 1st Nocte Idol? Choose the Star today.</div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-buttons">
+        <button class="btn-primary" onclick="showVoteSuccess()">LOGIN TO VOTE ↓</button>
+        <button class="btn-secondary" onclick="showInstallMessage()">Install App</button>
+    </div>
+
+    <!-- Section Header -->
+    <div class="section-header">CONTESTANTS</div>
+
+    <!-- Contestants Grid -->
+    <div class="grid">
+        <!-- 01 -->
+        <div class="card">
+            <div class="card-img-container">
+                <span class="contestant-number">#01</span>
+                <img class="card-img" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" alt="Chinwang Dada">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="contestant-name">CHINWANG DADA</div>
+                    <div class="contestant-label">Contestant</div>
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Chinwang Dada')">SHARE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 02 -->
+        <div class="card">
+            <div class="card-img-container">
+                <span class="contestant-number">#02</span>
+                <img class="card-img" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" alt="Nokche Wangsa">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="contestant-name">NOKCHE WANGSA</div>
+                    <div class="contestant-label">Contestant</div>
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Nokche Wangsa')">SHARE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 03 -->
+        <div class="card">
+            <div class="card-img-container">
+                <span class="contestant-number">#03</span>
+                <img class="card-img" src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=400&q=80" alt="Rangjat Rangsu">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="contestant-name">RANGJAT RANGSU</div>
+                    <div class="contestant-label">Contestant</div>
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Rangjat Rangsu')">SHARE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 04 -->
+        <div class="card">
+            <div class="card-img-container">
+                <span class="contestant-number">#04</span>
+                <img class="card-img" src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80" alt="Nokchey Wangsa">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="contestant-name">NOKCHEY WANGSA</div>
+                    <div class="contestant-label">Contestant</div>
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Nokchey Wangsa')">SHARE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 05 -->
+        <div class="card">
+            <div class="card-img-container">
+                <span class="contestant-number">#05</span>
+                <img class="card-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" alt="Tezian Matey">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="contestant-name">TEZIAN MATEY</div>
+                    <div class="contestant-label">Contestant</div>
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Tezian Matey')">SHARE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 06 -->
+        <div class="card">
+            <div class="card-img-container">
+                <span class="contestant-number">#06</span>
+                <img class="card-img" src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80" alt="Samban Sawin">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="contestant-name">SAMBAN SAWIN</div>
+                    <div class="contestant-label">Contestant</div>
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Samban Sawin')">SHARE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 07 -->
+        <div class="card">
+            <div class="card-img-container">
+                <span class="contestant-number">#07</span>
+                <img class="card-img" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80" alt="Yamna Rangwang">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="contestant-name">YAMNA RANGWANG</div>
+                    <div class="contestant-label">Contestant</div>
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Yamna Rangwang')">SHARE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 08 -->
+        <div class="card">
+            <div class="card-img-container">
+                <span class="contestant-number">#08</span>
+                <img class="card-img" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" alt="Ngongban Moika">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="contestant-name">NGONGBAN MOIKA</div>
+                    <div class="contestant-label">Contestant</div>
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Ngongban Moika')">SHARE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- #09: PAWAN DEV PRASAD (Your photo inserted) -->
+        <div class="card">
+            <div class="card-img-container">
+                <span class="contestant-number">#09</span>
+                <img class="card-img" src="data:image/png;base64,...(your image base64 data)..." alt="Pawan Dev Prasad">
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="contestant-name">PAWAN DEV PRASAD</div>
+                    <div class="contestant-label">Contestant</div>
+                </div>
+                <div class="card-actions">
+                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Pawan Dev Prasad')">SHARE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Online Voting Platform
+    </div>
+</div>
+
+<!-- Toast message element -->
+<div id="toast">Message</div>
+
+<script>
+    function showToast(message, bgColor) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.style.backgroundColor = bgColor;
+        toast.className = "show";
+        setTimeout(function(){
+            toast.className = toast.className.replace("show", "");
+        }, 3000);
+    }
+
+    function showLoginSuccess() {
+        showToast("Login Successful", "#2563eb");
+    }
+
+    function showVoteSuccess() {
+        showToast("VOTE SUCCESSFUL", "#10b981");
+    }
+
+    function showInstallMessage() {
+        showToast("App Download Starting...", "#f59e0b");
+    }
+
+    function sharedContestant(name) {
+        showToast("Link copied for " + name, "#3b82f6");
+    }
+</script>
+
+</body>
+          </html>
+  
