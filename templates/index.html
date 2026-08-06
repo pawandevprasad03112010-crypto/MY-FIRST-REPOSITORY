@@ -219,7 +219,7 @@
             gap: 6px;
         }
 
-        .card-btn-login, .card-btn-share {
+        .card-btn-vote, .card-btn-share {
             flex: 1;
             padding: 6px 0;
             border-radius: 4px;
@@ -230,7 +230,7 @@
             text-align: center;
         }
 
-        .card-btn-login {
+        .card-btn-vote {
             background-color: #2563eb;
             color: white;
         }
@@ -288,7 +288,6 @@
 <body>
 
 <div class="container">
-    <!-- Notice Banner -->
     <div class="notice-banner">
         <div class="notice-icon">⚠️</div>
         <div class="notice-title">Sorry!</div>
@@ -300,7 +299,6 @@
         </div>
     </div>
 
-    <!-- Header / Voting Info -->
     <div class="voting-info">
         <div class="voting-end">VOTING END IN</div>
         <div class="voting-end timer-highlight">🟢 4 DAYS • 13 HRS • 53 MIN</div>
@@ -319,157 +317,147 @@
 
     <h2 class="section-title">CONTESTANTS</h2>
 
-    <!-- Grid of Contestants -->
     <div class="grid">
-        <!-- 01 -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#01</span>
-                <img class="card-img" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" alt="Chinwang Dada">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-57-43-62_99c04817c0de5652397fc8b56c3b3817_cg8urx.jpg" alt="Contestant 01">
             </div>
             <div class="card-body">
                 <div>
-                    <div class="contestant-name">CHINWANG DADA</div>
+                    <div class="contestant-name">CONTESTANT 01</div>
                     <div class="contestant-label">Contestant</div>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Chinwang Dada')">SHARE</button>
+                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Contestant 01')">SHARE</button>
                 </div>
             </div>
         </div>
 
-        <!-- 02 -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#02</span>
-                <img class="card-img" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" alt="Nokche Wangsa">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-58-22-35_99c04817c0de5652397fc8b56c3b3817_z1opld.jpg" alt="Contestant 02">
             </div>
             <div class="card-body">
                 <div>
-                    <div class="contestant-name">NOKCHE WANGSA</div>
+                    <div class="contestant-name">CONTESTANT 02</div>
                     <div class="contestant-label">Contestant</div>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Nokche Wangsa')">SHARE</button>
+                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Contestant 02')">SHARE</button>
                 </div>
             </div>
         </div>
 
-        <!-- 03 -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#03</span>
-                <img class="card-img" src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=400&q=80" alt="Rangjat Rangsu">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-58-39-21_99c04817c0de5652397fc8b56c3b3817_ey8" alt="Contestant 03">
             </div>
             <div class="card-body">
                 <div>
-                    <div class="contestant-name">RANGJAT RANGSU</div>
+                    <div class="contestant-name">CONTESTANT 03</div>
                     <div class="contestant-label">Contestant</div>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Rangjat Rangsu')">SHARE</button>
+                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Contestant 03')">SHARE</button>
                 </div>
             </div>
         </div>
 
-        <!-- 04 -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#04</span>
-                <img class="card-img" src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80" alt="Nokchey Wangsa">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-58-58-80_99c04817c0de5652397fc8b56c3b3817_bgsosg.jpg" alt="Contestant 04">
             </div>
             <div class="card-body">
                 <div>
-                    <div class="contestant-name">NOKCHEY WANGSA</div>
+                    <div class="contestant-name">CONTESTANT 04</div>
                     <div class="contestant-label">Contestant</div>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Nokchey Wangsa')">SHARE</button>
+                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Contestant 04')">SHARE</button>
                 </div>
             </div>
         </div>
 
-        <!-- 05 -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#05</span>
-                <img class="card-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" alt="Tezian Matey">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-56-18-38_99c04817c0de5652397fc8b56c3b3817_zoiyiy.jpg" alt="Contestant 05">
             </div>
             <div class="card-body">
                 <div>
-                    <div class="contestant-name">TEZIAN MATEY</div>
+                    <div class="contestant-name">CONTESTANT 05</div>
                     <div class="contestant-label">Contestant</div>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Tezian Matey')">SHARE</button>
+                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Contestant 05')">SHARE</button>
                 </div>
             </div>
         </div>
 
-        <!-- 06 -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#06</span>
-                <img class="card-img" src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80" alt="Samban Sawin">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-56-38-59_99c04817c0de5652397fc8b56c3b3817_rjxkaa.jpg" alt="Contestant 06">
             </div>
             <div class="card-body">
                 <div>
-                    <div class="contestant-name">SAMBAN SAWIN</div>
+                    <div class="contestant-name">CONTESTANT 06</div>
                     <div class="contestant-label">Contestant</div>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Samban Sawin')">SHARE</button>
+                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Contestant 06')">SHARE</button>
                 </div>
             </div>
         </div>
 
-        <!-- 07 -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#07</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786035957/Screenshot_2026-08-06-22-33-21-58_40deb401b9ffe8e1df2f1cc5ba480b12_mfzvlb.jpg" alt="Yamna Rangwang">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037520/Screenshot_2026-08-06-22-57-01-96_99c04817c0de5652397fc8b56c3b3817_w3vevb.jpg" alt="Contestant 07">
             </div>
             <div class="card-body">
                 <div>
-                    <div class="contestant-name">YAMNA RANGWANG</div>
+                    <div class="contestant-name">CONTESTANT 07</div>
                     <div class="contestant-label">Contestant</div>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Yamna Rangwang')">SHARE</button>
+                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Contestant 07')">SHARE</button>
                 </div>
             </div>
         </div>
 
-        <!-- 08 -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#08</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786035995/Screenshot_2026-08-06-22-33-36-47_40deb401b9ffe8e1df2f1cc5ba480b12_nr2xbs.jpg" alt="Ngongban Moika">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-57-21-32_99c04817c0de5652397fc8b56c3b3817_qun4i7.jpg" alt="Contestant 08">
             </div>
             <div class="card-body">
                 <div>
-                    <div class="contestant-name">NGONGBAN MOIKA</div>
+                    <div class="contestant-name">CONTESTANT 08</div>
                     <div class="contestant-label">Contestant</div>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
-                    <button class="card-btn-share" onclick="sharedContestant('Ngongban Moika')">SHARE</button>
+                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
+                    <button class="card-btn-share" onclick="sharedContestant('Contestant 08')">SHARE</button>
                 </div>
             </div>
         </div>
 
-        <!-- #09: PAWAN DEV PRASAD -->
         <div class="card">
             <div class="card-img-container">
                 <span class="contestant-number">#09</span>
-                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786035691/IMG20260806221127_delrat.jpg" alt="Pawan Dev Prasad">
+                <img class="card-img" src="https://res.cloudinary.com/nuhifsdu/image/upload/v1786037530/IMG20260806221127_lcztqs.jpg" alt="Pawan Dev Prasad">
             </div>
             <div class="card-body">
                 <div>
@@ -477,20 +465,18 @@
                     <div class="contestant-label">Contestant</div>
                 </div>
                 <div class="card-actions">
-                    <button class="card-btn-login" onclick="showVoteSuccess()">LOGIN</button>
+                    <button class="card-btn-vote" onclick="showVoteSuccess()">VOTE</button>
                     <button class="card-btn-share" onclick="sharedContestant('Pawan Dev Prasad')">SHARE</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
     <div class="footer">
         Online Voting Platform
     </div>
 </div>
 
-<!-- Toast message element -->
 <div id="toast">Message</div>
 
 <script>
@@ -522,4 +508,4 @@
 </script>
 
 </body>
-</html>
+                    </html>
