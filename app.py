@@ -1,76 +1,46 @@
-from flask import Flask, render_template, request, jsonify, abort
-from pymongo import MongoClient
-from bson.objectid import ObjectId
 import os
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-app = Flask(__name__)
+app = FastAPI()
 
-# ---------- MongoDB connection ----------
-# Render ke "Environment" tab mein ye variables set karein:
-#   MONGO_URI        -> aapki MongoDB connection string (mongodb+srv://...)
-#   DB_NAME           -> database ka naam (default: dictionary_db)
-#   COLLECTION_NAME   -> collection ka naam (default: words)
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://pawandevprasad03112010_db_user:<db_password>@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB")
-DB_NAME = os.environ.get("DB_NAME", "gg")
-COLLECTION_NAME = os.environ.get("COLLECTION_NAME", "txtCities")
+# CORS इनेबल करें ताकि फ्लटर ऐप से रिक्वेस्ट आसानी से आ सके
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
-collection = db[COLLECTION_NAME]
+# लॉगिन डेटा मॉडल
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
-# Expected document format in MongoDB collection:
-# {
-#   "word": "Apple",
-#   "meaning": "Apple ek fal hai...",
-#   "photo": "https://example.com/apple.jpg"
-# }
+# आपका डमी यूज़र डेटा
+MOCK_USER = {
+    "email": "ppawandevprasad@gmail.com",
+    "password": "password123",
+    "name": "PAWAN DEV PRASAD"
+}
 
-
-def serialize(doc):
-    """MongoDB ka ObjectId ko JSON/HTML ke liye string bana deta hai."""
-    doc["id"] = str(doc["_id"])
-    doc.pop("_id", None)
-    return doc
-
-
-# ---------- Home page (search box) ----------
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-
-# ---------- Search API (AJAX ke liye) ----------
-@app.route("/api/search")
-def search_api():
-    query = request.args.get("q", "").strip()
-
-    if query == "":
-        results = []
+@app.post("/api/login")
+def login(data: LoginRequest):
+    if data.email == MOCK_USER["email"] and data.password == MOCK_USER["password"]:
+        return {
+            "status": "success",
+            "message": "Login Successful",
+            "name": MOCK_USER["name"],
+            "email": MOCK_USER["email"]
+        }
     else:
-        # Case-insensitive partial match "word" field par
-        cursor = collection.find(
-            {"word": {"$regex": query, "$options": "i"}}
-        ).sort("word", 1)
-        results = [serialize(doc) for doc in cursor]
+        raise HTTPException(status_code=400, detail="गलत ईमेल या पासवर्ड!")
 
-    return jsonify(results)
-
-
-# ---------- Detail page (click karne par khulta hai) ----------
-@app.route("/word/<word_id>")
-def detail(word_id):
-    try:
-        doc = collection.find_one({"_id": ObjectId(word_id)})
-    except Exception:
-        doc = None
-
-    if doc is None:
-        abort(404)
-
-    item = serialize(doc)
-    return render_template("detail.html", item=item)
-
-
+# Render पर होस्टिंग के लिए डायनेमिक पोर्ट सेटअप
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    
