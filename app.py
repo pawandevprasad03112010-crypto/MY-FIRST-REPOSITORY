@@ -11,10 +11,13 @@ app = FastAPI(title="Purple Gold Search Engine")
 templates = Jinja2Templates(directory="templates")
 
 # ==============================================================================
-# 🔗 MONGODB CONNECTION DETAILS
+# 🔗 APNA MONGODB ATLAS URL YAHAN BHAREIN
 # ==============================================================================
+# Render ke Environment Variables me set karein ya direct quote me string daalein
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB")
-DB_NAME = "gg" 
+
+# Aapke Screenshot Ke According Exact Names Set Kiye Gaye Hain:
+DB_NAME = "gg"
 COLLECTION_NAME = "txtCities"
 
 client = MongoClient(MONGO_URI)
@@ -69,16 +72,18 @@ async def api_search(q: str = ""):
 
     regex_pattern = re.compile(re.escape(query), re.IGNORECASE)
 
+    # AAPKE DATABASE FIELDS KE ACCORDING UPDATED SEARCH FILTER:
     search_filter = {
         "$or": [
-            {"title": regex_pattern},
-            {"category": regex_pattern},
-            {"description": regex_pattern},
-            {"brand": regex_pattern}
+            {"name": regex_pattern},
+            {"city": regex_pattern},
+            {"sector": regex_pattern},
+            {"location": regex_pattern},
+            {"phone_no": regex_pattern}
         ]
     }
 
-    results = list(collection.find(search_filter, {"_id": 0}).limit(10))
+    results = list(collection.find(search_filter, {"_id": 0}).limit(15))
     return JSONResponse(results)
 
 if __name__ == "__main__":
