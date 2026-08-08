@@ -1,549 +1,362 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nocte Idol S1 - Voting</title>
+    <title>Golden Search Engine</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        :root {
+            --bg-purple: #140728;
+            --card-purple: #250f44;
+            --box-purple: #35175e;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --silver-light: #e6e6e6;
         }
 
         body {
-            background-color: #0b0f19;
-            color: #ffffff;
-            padding: 16px;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-purple);
+            color: var(--silver-light);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(37, 15, 68, 0.9);
+            border-bottom: 2px solid var(--gold);
+            padding: 15px 30px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
+        }
+
+        .brand {
+            color: var(--gold);
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .logout-btn {
+            color: var(--gold);
+            text-decoration: none;
+            border: 1px solid var(--gold);
+            padding: 6px 15px;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: var(--gold);
+            color: var(--bg-purple);
         }
 
         .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
             width: 100%;
-            max-width: 480px;
+            padding: 16px 20px;
+            font-size: 18px;
+            background: rgba(37, 15, 68, 0.8);
+            border: 2px solid var(--gold);
+            border-radius: 30px;
+            color: #fff;
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        .search-box:focus {
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .suggestions-dropdown {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background: var(--card-purple);
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(192, 192, 192, 0.1);
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
         }
 
-        /* Notice Banner */
-        .notice-banner {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 1px solid #334155;
+        .suggestion-item:hover {
+            background: var(--box-purple);
+            color: var(--gold);
+        }
+
+        .result-card {
+            display: none;
+            background: var(--card-purple);
+            border: 2px solid var(--gold);
             border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            width: 100%;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.4s ease-in-out;
         }
 
-        .notice-icon {
-            font-size: 32px;
-            margin-bottom: 8px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .notice-title {
-            font-size: 20px;
-            font-weight: 800;
-            color: #f59e0b;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
+        /* Side-Scroll Image Carousel */
+        .carousel-container {
+            position: relative;
+            max-width: 100%;
+            height: 380px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--silver);
+            background: #000;
+            display: none;
         }
 
-        .notice-text {
-            font-size: 13px;
-            color: #94a3b8;
-            line-height: 1.5;
-            margin-bottom: 14px;
+        .carousel-track {
+            display: flex;
+            height: 100%;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
         }
 
-        .notice-footer {
+        .carousel-track::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-image {
+            min-width: 100%;
+            height: 100%;
+            object-fit: contain;
+            flex-shrink: 0;
+            background: #000;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(20, 7, 40, 0.7);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            z-index: 10;
+        }
+
+        .prev-btn { left: 15px; }
+        .next-btn { right: 15px; }
+
+        /* Dynamic Grid Layout for Document Details */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            background: var(--box-purple);
+            border: 1px solid var(--silver);
+            padding: 15px;
+            border-radius: 10px;
+            word-break: break-word;
+        }
+
+        .box-title {
+            color: var(--gold);
             font-size: 12px;
-            color: #38bdf8;
-            border-top: 1px solid #1e293b;
-            padding-top: 12px;
-        }
-
-        /* Header section */
-        .voting-info {
-            text-align: center;
-            margin-bottom: 24px;
-            width: 100%;
-        }
-
-        .voting-end {
-            font-size: 13px;
-            font-weight: 700;
-            color: #94a3b8;
+            text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 6px;
         }
 
-        .timer-highlight {
-            color: #facc15;
-        }
-
-        .main-title {
-            font-size: 28px;
-            font-weight: 900;
-            margin-bottom: 8px;
-            background: linear-gradient(to right, #60a5fa, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 16px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px 16px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-transform: uppercase;
-        }
-
-        .btn-vote {
-            background-color: #2563eb;
-            color: white;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-        }
-
-        .btn-install {
-            background-color: #1e293b;
-            color: white;
-            border: 1px solid #475569;
-        }
-
-        .section-title {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        /* Contestants Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            width: 100%;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background-color: #111827;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #1f2937;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .card-img-container {
-            position: relative;
-            width: 100%;
-            height: 180px;
-            background-color: #000;
-        }
-
-        .contestant-number {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            font-size: 20px;
-            font-weight: 900;
-            color: #38bdf8;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            z-index: 2;
-        }
-
-        .card-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .card-body {
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .contestant-name {
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            color: #ffffff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .contestant-label {
-            font-size: 11px;
-            color: #9ca3af;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .card-btn-action, .card-btn-share {
-            flex: 1;
-            padding: 6px 0;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-            text-align: center;
-        }
-
-        .card-btn-action {
-            background-color: #2563eb;
-            color: white;
-        }
-
-        .card-btn-action.voted {
-            background-color: #059669;
-        }
-
-        .card-btn-share {
-            background-color: #374151;
-            color: white;
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #161e2e;
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 24px;
-            width: 90%;
-            max-width: 360px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-
-        .modal-title {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 18px;
-            font-weight: 800;
-            color: #38bdf8;
-            margin-bottom: 12px;
-        }
-
-        .modal-text {
-            font-size: 14px;
-            color: #cbd5e1;
-            margin-bottom: 20px;
+        .box-value {
+            color: var(--silver-light);
+            font-size: 15px;
             line-height: 1.4;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-no {
-            background-color: #1e293b;
-            color: #cbd5e1;
-            border: 1px solid #475569;
-        }
-
-        .btn-yes {
-            background-color: #0284c7;
-            color: white;
-        }
-
-        /* Footer */
-        .footer {
-            font-size: 13px;
-            color: #6b7280;
-            text-align: center;
-            padding: 20px 0;
-            border-top: 1px solid #1f2937;
-            width: 100%;
-        }
-
-        /* Toast Notification */
-        #toast {
-            visibility: hidden;
-            min-width: 220px;
-            background-color: #00d2ff;
-            color: #000;
-            text-align: center;
-            border-radius: 8px;
-            padding: 14px;
-            position: fixed;
-            z-index: 3000;
-            left: 50%;
-            top: 20px;
-            transform: translateX(-50%);
-            font-size: 16px;
-            font-weight: 800;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        #toast.show {
-            visibility: visible;
-            animation: fadeInOut 3s;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="notice-banner">
-        <div class="notice-icon">⚠️</div>
-        <div class="notice-title">Sorry!</div>
-        <div class="notice-text">
-            If a contestant is incorrectly marked as “VOTED”, tap <strong>VOTED</strong> button to access <strong>"Yes Withdraw"</strong> Vote, then vote again.
-        </div>
-        <div class="notice-footer">
-            <span>✨</span> Thanks for your patience—we're working to fix this.
+    <div class="navbar">
+        <div class="brand">👑 Royal Search</div>
+        <div>
+            Welcome, <b>{{ user }}</b> &nbsp;|&nbsp;
+            <a href="/logout" class="logout-btn">Logout</a>
         </div>
     </div>
 
-    <div class="voting-info">
-        <div class="voting-end">VOTING END IN</div>
-        <div class="voting-end timer-highlight">🟢 4 DAYS • 13 HRS • 53 MIN</div>
-        <h1 class="main-title">Nocte Idol S1</h1>
-        <p class="subtitle">Who will be the 1st Nocte Idol? Choose the Star today.</p>
-        
-        <div class="action-buttons">
-            <button class="btn btn-vote" id="mainLoginBtn" onclick="handleMainLogin()">
-                Login to Vote ↓
-            </button>
-            <button class="btn btn-install" onclick="showInstallMessage()">
-                Install App
-            </button>
+    <div class="container">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" class="search-box" placeholder="Type single alphabet, word, or sentence..." autocomplete="off">
+            <div id="suggestions" class="suggestions-dropdown"></div>
+        </div>
+
+        <div id="resultCard" class="result-card">
+            
+            <!-- Side Scrollable Carousel for Multi-Images -->
+            <div class="carousel-container" id="carouselContainer">
+                <button class="nav-btn prev-btn" onclick="scrollCarousel(-1)">&#10094;</button>
+                <div class="carousel-track" id="carouselTrack"></div>
+                <button class="nav-btn next-btn" onclick="scrollCarousel(1)">&#10095;</button>
+            </div>
+
+            <!-- Dynamic Information Boxes Grid -->
+            <div class="details-grid" id="detailsGrid"></div>
+
         </div>
     </div>
 
-    <h2 class="section-title">CONTESTANTS</h2>
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsDiv = document.getElementById('suggestions');
+        const resultCard = document.getElementById('resultCard');
+        const carouselContainer = document.getElementById('carouselContainer');
+        const carouselTrack = document.getElementById('carouselTrack');
+        const detailsGrid = document.getElementById('detailsGrid');
 
-    <div class="grid" id="contestantsGrid">
-        </div>
+        // Real-Time Search Event Listener
+        searchInput.addEventListener('input', async function() {
+            const query = this.value.trim();
 
-    <div class="footer">
-        Online Voting Platform
-    </div>
-</div>
-
-<div class="modal-overlay" id="withdrawModal">
-    <div class="modal-content">
-        <div class="modal-title">
-            <span>⚠️</span> Withdraw Vote
-        </div>
-        <div class="modal-text">
-            Are you sure you want to withdraw your vote for this contestant?
-        </div>
-        <div class="modal-actions">
-            <button class="modal-btn btn-no" onclick="handleNoKeepIt()">NO, KEEP IT</button>
-            <button class="modal-btn btn-yes" onclick="handleYesWithdraw()">YES, WITHDRAW</button>
-        </div>
-    </div>
-</div>
-
-<div id="toast">Message</div>
-
-<script>
-    // Contestants Data with specific Cloudinary URLs
-    const contestants = [
-        { id: 1, name: "CONTESTANT 01", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-57-43-62_99c04817c0de5652397fc8b56c3b3817_cg8urx.jpg" },
-        { id: 2, name: "CONTESTANT 02", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-58-22-35_99c04817c0de5652397fc8b56c3b3817_z1opld.jpg" },
-        { id: 3, name: "CONTESTANT 03", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-58-39-21_99c04817c0de5652397fc8b56c3b3817_ey8swx.jpg" },
-        { id: 4, name: "CONTESTANT 04", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-58-58-80_99c04817c0de5652397fc8b56c3b3817_bgsosg.jpg" },
-        { id: 5, name: "CONTESTANT 05", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-56-18-38_99c04817c0de5652397fc8b56c3b3817_zoiyiy.jpg" },
-        { id: 6, name: "CONTESTANT 06", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037518/Screenshot_2026-08-06-22-56-38-59_99c04817c0de5652397fc8b56c3b3817_rjxkaa.jpg" },
-        { id: 7, name: "CONTESTANT 07", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037520/Screenshot_2026-08-06-22-57-01-96_99c04817c0de5652397fc8b56c3b3817_w3vevb.jpg" },
-        { id: 8, name: "CONTESTANT 08", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037519/Screenshot_2026-08-06-22-57-21-32_99c04817c0de5652397fc8b56c3b3817_qun4i7.jpg" },
-        { id: 9, name: "PAWAN DEV PRASAD", url: "https://res.cloudinary.com/nuhifsdu/image/upload/v1786037530/IMG20260806221127_lcztqs.jpg" }
-    ];
-
-    let isLoggedIn = false; 
-    let contestantStates = {};
-    let activeWithdrawId = null;
-
-    contestants.forEach(c => {
-        contestantStates[c.id] = 'LOGIN';
-    });
-
-    function renderGrid() {
-        const grid = document.getElementById('contestantsGrid');
-        grid.innerHTML = '';
-
-        contestants.forEach(c => {
-            const state = contestantStates[c.id];
-            let btnText = 'LOGIN';
-            let btnClass = 'card-btn-action';
-
-            if (state === 'LOGIN') {
-                btnText = 'LOGIN';
-            } else if (state === 'VOTE') {
-                btnText = 'VOTE';
-            } else if (state === 'VOTED') {
-                btnText = 'VOTED';
-                btnClass += ' voted';
+            if (query.length === 0) {
+                suggestionsDiv.style.display = 'none';
+                return;
             }
 
-            const formattedNum = String(c.id).padStart(2, '0');
+            try {
+                const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                const items = await res.json();
 
-            const cardHTML = `
-                <div class="card">
-                    <div class="card-img-container">
-                        <span class="contestant-number">#${formattedNum}</span>
-                        <img class="card-img" src="${c.url}" alt="${c.name}">
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            <div class="contestant-name">${c.name}</div>
-                            <div class="contestant-label">Contestant</div>
-                        </div>
-                        <div class="card-actions">
-                            <button class="${btnClass}" onclick="handleContestantAction(${c.id})">${btnText}</button>
-                            <button class="card-btn-share" onclick="sharedContestant('${c.name}')">SHARE</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            grid.innerHTML += cardHTML;
-        });
-    }
+                suggestionsDiv.innerHTML = '';
 
-    function showToast(message) {
-        const toast = document.getElementById("toast");
-        toast.innerText = message;
-        toast.className = "show";
-        setTimeout(function(){
-            toast.className = "";
-        }, 3000);
-    }
-
-    function handleMainLogin() {
-        if (!isLoggedIn) {
-            isLoggedIn = true;
-            for (let id in contestantStates) {
-                if (contestantStates[id] === 'LOGIN') {
-                    contestantStates[id] = 'VOTE';
+                if (items.length === 0) {
+                    suggestionsDiv.innerHTML = '<div class="suggestion-item">No matches found</div>';
+                } else {
+                    items.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        
+                        // Main Display Title Key select karna
+                        const titleText = item.title || item.name || item.subject || Object.values(item)[0] || "Result";
+                        div.innerHTML = `<span>${titleText}</span>`;
+                        
+                        div.onclick = () => renderResultCard(item, titleText);
+                        suggestionsDiv.appendChild(div);
+                    });
                 }
+
+                suggestionsDiv.style.display = 'block';
+
+            } catch (err) {
+                console.error("Search Error:", err);
             }
-            document.getElementById('mainLoginBtn').innerText = "Logged In ✓";
-            renderGrid();
-            showToast("Login Successful");
-        } else {
-            showToast("Already Logged In");
+        });
+
+        // Click karke Data aur Images render karne ka Logic
+        function renderResultCard(item, titleText) {
+            suggestionsDiv.style.display = 'none';
+            searchInput.value = titleText;
+
+            carouselTrack.innerHTML = '';
+            detailsGrid.innerHTML = '';
+
+            let imagesFound = [];
+
+            // MongoDB Document ke sabhi keys par iterate karke Information Boxes aur Images find karna
+            for (const [key, value] of Object.entries(item)) {
+                
+                // Image field identify karna (URL, Array of URLs, etc.)
+                if (key.toLowerCase().includes('image') || key.toLowerCase().includes('photo') || key.toLowerCase().includes('img')) {
+                    if (Array.isArray(value)) {
+                        imagesFound.push(...value);
+                    } else if (typeof value === 'string') {
+                        imagesFound.push(value);
+                    }
+                    continue;
+                }
+
+                // Normal Information Box add karna
+                const box = document.createElement('div');
+                box.className = 'info-box';
+                
+                // Lambe text/description ke liye full grid width dena
+                if (typeof value === 'string' && value.length > 80) {
+                    box.style.gridColumn = "1 / -1";
+                }
+
+                box.innerHTML = `
+                    <div class="box-title">${key}</div>
+                    <div class="box-value">${typeof value === 'object' ? JSON.stringify(value) : value}</div>
+                `;
+                detailsGrid.appendChild(box);
+            }
+
+            // Image Carousel Render
+            if (imagesFound.length > 0) {
+                imagesFound.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.className = 'carousel-image';
+                    carouselTrack.appendChild(img);
+                });
+                carouselContainer.style.display = 'block';
+            } else {
+                carouselContainer.style.display = 'none';
+            }
+
+            resultCard.style.display = 'block';
         }
-    }
 
-    function handleContestantAction(id) {
-        const currentState = contestantStates[id];
-
-        if (currentState === 'LOGIN') {
-            handleMainLogin();
-        } else if (currentState === 'VOTE') {
-            contestantStates[id] = 'VOTED';
-            renderGrid();
-            showToast("VOTE SUCCESSFUL");
-        } else if (currentState === 'VOTED') {
-            activeWithdrawId = id;
-            document.getElementById('withdrawModal').style.display = 'flex';
+        // Side-Scroll Carousel Controls
+        function scrollCarousel(direction) {
+            const imageWidth = carouselTrack.clientWidth;
+            carouselTrack.scrollBy({ left: direction * imageWidth, behavior: 'smooth' });
         }
-    }
 
-    function handleNoKeepIt() {
-        document.getElementById('withdrawModal').style.display = 'none';
-        showToast("LAURA CHUSO");
-        activeWithdrawId = null;
-    }
-
-    function handleYesWithdraw() {
-        if (activeWithdrawId !== null) {
-            contestantStates[activeWithdrawId] = 'VOTE';
-            renderGrid();
-            showToast("Vote Withdrawn Successfully");
-        }
-        document.getElementById('withdrawModal').style.display = 'none';
-        activeWithdrawId = null;
-    }
-
-    function showInstallMessage() {
-        showToast("App Download Starting...");
-    }
-
-    function sharedContestant(name) {
-        showToast("Link copied for " + name);
-    }
-
-    window.onload = function() {
-        renderGrid();
-    };
-</script>
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+    </script>
 
 </body>
 </html>
+
