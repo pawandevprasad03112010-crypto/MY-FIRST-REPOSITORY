@@ -1,43 +1,67 @@
 import os
-from flask import Flask, jsonify, request, send_from_directory
+import re
+from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
 app = Flask(__name__, static_folder='static')
 
-# MongoDB Connection (Render Environment Variable se URI lega)
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB")
+# MongoDB Connection
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://pawandevprasad_db_user:12345@cluster.mongodb.net/?retryWrites=true&w=majority")
 client = MongoClient(MONGO_URI)
 db = client['gg']
 properties_col = db['txtCities']
 
-# Root Route: Bina kisi HTML template ke sirf Script tag load karega
 @app.route('/')
 def index():
-    return '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Property App</title></head><body style="margin:0; padding:0; background:#f7f7fc;"><script src="/static/app.js"></script></body></html>'
+    return '''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Property Search Engine</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f7f7fc;">
+  <script src="/static/app.js"></script>
+</body>
+</html>'''
 
-# Search API
+# 🔍 UNIVERSAL MATCHING SEARCH ENGINE
 @app.route('/api/search', methods=['GET'])
 def search_properties():
-    query = request.args.get('q', '').strip()
-    if not query:
+    query_text = request.args.get('q', '').strip()
+    
+    if not query_text:
+        # Agar kuch bhi type nahi kiya hai to saari properties dikhao
         results = list(properties_col.find({}))
     else:
-        regex_query = {"$regex": query, "$options": "i"}
-        results = list(properties_col.find({
+        # Special characters ko escape karna taaki search crash na ho
+        escaped_query = re.escape(query_text)
+        
+        # Regex pattern: Case-insensitive search (chhota/bada letter farak nahi padega)
+        regex_pattern = {"$regex": escaped_query, "$options": "i"}
+        
+        # Dictionary ke kisi bhi key/field me Alphabet, Word ya Sentence match hona
+        search_filter = {
             "$or": [
-                {"location": regex_query},
-                {"title": regex_query},
-                {"furnishing": regex_query}
+                {"title": regex_pattern},
+                {"location": regex_pattern},
+                {"furnishing": regex_pattern},
+                {"highlights": regex_pattern},
+                {"description": regex_pattern},
+                {"size": regex_pattern},
+                {"price": regex_pattern}
             ]
-        }))
+        }
+        results = list(properties_col.find(search_filter))
 
+    # ObjectId ko JSON string me badalna
     for doc in results:
         doc['_id'] = str(doc['_id'])
     
     return jsonify(results)
 
-# Get Single Property Detail API
+# Single Property Fetch API
 @app.route('/api/property/<id>', methods=['GET'])
 def get_property(id):
     try:
