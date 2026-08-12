@@ -1,163 +1,269 @@
-// Global Styles Injection via JS
-const style = document.createElement('style');
-style.textContent = `
-  :root { --primary: #5f2eea; --bg: #f7f7fc; }
-  * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-  .app-card { width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; background: #fff; position: relative; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-  .screen { display: none; padding: 16px; }
-  .screen.active { display: block; }
-  .carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 8px; }
-  .carousel::-webkit-scrollbar { display: none; }
-  .carousel img { flex: 0 0 85%; height: 200px; object-fit: cover; border-radius: 12px; scroll-snap-align: start; }
-  .detail-carousel img { flex: 0 0 100%; height: 280px; object-fit: cover; border-radius: 16px; scroll-snap-align: start; }
-  .prop-card { border: 1px solid #f0f0f5; border-radius: 16px; margin-bottom: 16px; overflow: hidden; background: #fff; cursor: pointer; }
-  .badge { display: inline-block; background: #e2fbd7; color: #008a00; font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 6px; }
+// Styles Injection via JS
+const globalStyles = document.createElement('style');
+globalStyles.textContent = `
+  :root {
+    --primary: #5f2eea;
+    --bg-color: #f7f7fc;
+    --card-bg: #ffffff;
+    --text-dark: #14142b;
+    --text-muted: #6e7191;
+  }
+
+  * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+  body { display: flex; justify-content: center; background-color: var(--bg-color); }
+  
+  .app-frame {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card-bg);
+    min-height: 100vh;
+    position: relative;
+    box-shadow: 0 0 15px rgba(0,0,0,0.06);
+  }
+
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+
+  /* Search Engine Bar Styling */
+  .search-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin: 15px 0 20px 0;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 14px 50px 14px 40px;
+    border-radius: 14px;
+    border: 1px solid #d9dbe9;
+    font-size: 0.95rem;
+    outline: none;
+  }
+
+  .search-input:focus { border-color: var(--primary); }
+
+  .search-left-icon {
+    position: absolute;
+    left: 14px;
+    color: #a0a3bd;
+    font-size: 1.1rem;
+    pointer-events: none;
+  }
+
+  /* Right-side Search Button */
+  .search-submit-btn {
+    position: absolute;
+    right: 6px;
+    background: var(--primary);
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Side-scroll Image Carousel inside cards */
+  .property-card {
+    border-radius: 16px;
+    border: 1px solid #f0f0f5;
+    margin-bottom: 20px;
+    overflow: hidden;
+    background: var(--card-bg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+  }
+
+  .horizontal-gallery {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+
+  .horizontal-gallery::-webkit-scrollbar { display: none; }
+
+  .horizontal-gallery img {
+    flex: 0 0 88%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    scroll-snap-align: start;
+  }
+
+  .card-content { padding: 14px; cursor: pointer; }
+  .badge-verified { display: inline-block; background: #e2fbd7; color: #008a00; font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 6px; margin-bottom: 8px; }
+  .prop-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 6px; color: var(--text-dark); }
+  .prop-price { font-size: 1.25rem; font-weight: bold; color: var(--primary); margin: 6px 0; }
+  .prop-subtext { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; }
+
+  /* Detail Screen Carousel */
+  .detail-gallery {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 10px;
+    margin-bottom: 16px;
+    scrollbar-width: none;
+  }
+  .detail-gallery::-webkit-scrollbar { display: none; }
+
+  .detail-gallery img {
+    flex: 0 0 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 16px;
+    scroll-snap-align: start;
+  }
 `;
-document.head.appendChild(style);
+document.head.appendChild(globalStyles);
 
 // Main Container
-const appContainer = document.createElement('div');
-appContainer.className = 'app-card';
-document.body.appendChild(appContainer);
+const mainApp = document.createElement('div');
+mainApp.className = 'app-frame';
+document.body.appendChild(mainApp);
 
-// ------------------- 1. LOGIN SCREEN -------------------
-const loginScreen = document.createElement('div');
-loginScreen.className = 'screen active';
-loginScreen.id = 'login-screen';
+// 1. LOGIN PAGE
+const loginPage = document.createElement('div');
+loginPage.className = 'page active';
+loginPage.id = 'login-page';
 
-loginScreen.innerHTML = `
-  <div style="text-align: center; padding-top: 100px;">
+loginPage.innerHTML = `
+  <div style="text-align: center; margin-top: 100px;">
     <h2>Welcome Back</h2>
-    <p style="color:#6e7191;">Sign in to view properties</p>
-    <input type="text" id="username" value="PAWAN" placeholder="Username" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ccc; border-radius:8px;">
-    <input type="password" id="password" value="123456" placeholder="Password" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ccc; border-radius:8px;">
-    <button id="login-btn" style="width:100%; padding:12px; background:var(--primary); color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Login</button>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">Please login to continue</p>
+    <input type="text" id="login-user" value="PAWAN" placeholder="Username" style="width:100%; padding:12px; margin-bottom:12px; border:1px solid #ccc; border-radius:8px;">
+    <input type="password" id="login-pass" value="123456" placeholder="Password" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ccc; border-radius:8px;">
+    <button id="login-submit" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; font-size:1rem; font-weight:bold; cursor:pointer;">Login</button>
   </div>
 `;
-appContainer.appendChild(loginScreen);
+mainApp.appendChild(loginPage);
 
-// ------------------- 2. HOME SCREEN -------------------
-const homeScreen = document.createElement('div');
-homeScreen.className = 'screen';
-homeScreen.id = 'home-screen';
+// 2. SEARCH PAGE
+const homePage = document.createElement('div');
+homePage.className = 'page';
+homePage.id = 'home-page';
 
-homeScreen.innerHTML = `
-  <div style="font-weight:bold; font-size:1.2rem; margin-bottom:12px;">Hi <span id="user-display">PAWAN</span>! 👋</div>
-  
-  <div style="display:flex; gap:10px; overflow-x:auto; margin-bottom:15px; padding-bottom:5px;">
-    <div style="padding:8px 14px; background:#f0efff; color:var(--primary); border-radius:10px; font-weight:bold; white-space:nowrap;">Projects</div>
-    <div style="padding:8px 14px; background:#f0efff; color:var(--primary); border-radius:10px; font-weight:bold; white-space:nowrap;">Buy</div>
-    <div style="padding:8px 14px; background:#f0efff; color:var(--primary); border-radius:10px; font-weight:bold; white-space:nowrap;">Rent</div>
+homePage.innerHTML = `
+  <div style="font-weight:bold; font-size:1.2rem; margin:8px 0;">Hi <span id="username-heading">PAWAN</span>! 👋</div>
+
+  <!-- Search Engine Bar -->
+  <div class="search-container">
+    <span class="search-left-icon">🔍</span>
+    <input type="text" id="search-box-input" class="search-input" placeholder="Type letter, word or sentence to search...">
+    <button id="search-action-btn" class="search-submit-btn">➔</button>
   </div>
 
-  <div style="position:relative; margin-bottom:20px;">
-    <input type="text" id="search-input" placeholder="Search locality or project..." style="width:100%; padding:12px 40px 12px 12px; border-radius:12px; border:1px solid #d9dbe9; outline:none;">
-    <button id="search-btn" style="position:absolute; right:6px; top:6px; background:var(--primary); color:white; border:none; width:32px; height:32px; border-radius:8px; cursor:pointer;">🔍</button>
-  </div>
-
-  <div id="property-list"></div>
+  <div id="search-results-list"></div>
 `;
-appContainer.appendChild(homeScreen);
+mainApp.appendChild(homePage);
 
-// ------------------- 3. DETAIL SCREEN -------------------
-const detailScreen = document.createElement('div');
-detailScreen.className = 'screen';
-detailScreen.id = 'detail-screen';
+// 3. PROPERTY DETAIL PAGE
+const detailPage = document.createElement('div');
+detailPage.className = 'page';
+detailPage.id = 'detail-page';
 
-detailScreen.innerHTML = `
-  <button id="back-btn" style="background:none; border:none; font-size:1rem; font-weight:bold; cursor:pointer; margin-bottom:12px;">← Back</button>
-  <div class="carousel detail-carousel" id="detail-gallery"></div>
-  <div id="detail-info" style="margin-top:15px;"></div>
+detailPage.innerHTML = `
+  <button id="back-to-home" style="background:none; border:none; font-size:1.1rem; font-weight:bold; cursor:pointer; margin-bottom:12px;">← Back</button>
+  <div class="detail-gallery" id="enlarged-gallery"></div>
+  <div id="full-property-info"></div>
 `;
-appContainer.appendChild(detailScreen);
+mainApp.appendChild(detailPage);
 
-// ------------------- LOGIC & ROUTING -------------------
-
-function switchScreen(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
+// ROUTING & LOGIC
+function navigateTo(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
 }
 
-// Event Listeners
-document.getElementById('login-btn').addEventListener('click', () => {
-  const user = document.getElementById('username').value;
-  if (user) {
-    document.getElementById('user-display').innerText = user;
-    switchScreen('home-screen');
-    fetchProperties();
+document.getElementById('login-submit').addEventListener('click', () => {
+  const username = document.getElementById('login-user').value;
+  if (username) {
+    document.getElementById('username-heading').innerText = username;
+    navigateTo('home-page');
+    executePropertySearch();
   }
 });
 
-document.getElementById('search-btn').addEventListener('click', fetchProperties);
-document.getElementById('search-input').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') fetchProperties();
+document.getElementById('search-action-btn').addEventListener('click', executePropertySearch);
+document.getElementById('search-box-input').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') executePropertySearch();
 });
+document.getElementById('back-to-home').addEventListener('click', () => navigateTo('home-page'));
 
-document.getElementById('back-btn').addEventListener('click', () => {
-  switchScreen('home-screen');
-});
-
-// Search API Handler
-async function fetchProperties() {
-  const query = document.getElementById('search-input').value;
-  const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-  const data = await res.json();
-  renderProperties(data);
+// Search API Execution
+async function executePropertySearch() {
+  const query = document.getElementById('search-box-input').value;
+  const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+  const properties = await response.json();
+  displaySearchResults(properties);
 }
 
-// Render Results
-function renderProperties(list) {
-  const container = document.getElementById('property-list');
-  container.innerHTML = '';
+// Render Results with Images
+function displaySearchResults(properties) {
+  const listContainer = document.getElementById('search-results-list');
+  listContainer.innerHTML = '';
 
-  if (list.length === 0) {
-    container.innerHTML = '<p style="text-align:center; color:#888;">No properties found.</p>';
+  if (!properties || properties.length === 0) {
+    listContainer.innerHTML = '<p style="text-align:center; margin-top:30px; color:#a0a3bd;">No matching results found.</p>';
     return;
   }
 
-  list.forEach(item => {
+  properties.forEach(item => {
     const card = document.createElement('div');
-    card.className = 'prop-card';
+    card.className = 'property-card';
 
-    const imagesHtml = (item.images || []).map(url => `<img src="${url}">`).join('');
+    const imagesHtml = (item.images || []).map(imgUrl => `<img src="${imgUrl}" alt="Property Image">`).join('');
 
     card.innerHTML = `
-      <div class="carousel">${imagesHtml}</div>
-      <div style="padding:12px;" onclick="loadDetail('${item._id}')">
-        <span class="badge">✓ Verified</span>
-        <div style="font-size:0.85rem; color:#6e7191; margin:4px 0;">${item.furnishing || 'Semi-Furnished'} • ${item.size || '800 sq.ft.'}</div>
-        <div style="font-weight:bold; font-size:1rem;">${item.title}</div>
-        <div style="font-size:1.1rem; font-weight:bold; color:var(--primary); margin:6px 0;">₹ ${item.price}/Month</div>
-        <div style="font-size:0.8rem; color:#6e7191;">Highlights: ${item.highlights || 'N/A'}</div>
+      <div class="horizontal-gallery">
+        ${imagesHtml}
+      </div>
+      <div class="card-content" onclick="openPropertyDetail('${item._id}')">
+        <span class="badge-verified">✓ Verified</span>
+        <div class="prop-subtext">${item.furnishing || 'Semi-Furnished'} • ${item.size || '800 sq.ft.'}</div>
+        <div class="prop-title">${item.title}</div>
+        <div class="prop-price">₹ ${item.price}/Month</div>
+        <div class="prop-subtext">Highlights: ${item.highlights || 'Close to Station'}</div>
       </div>
     `;
-    container.appendChild(card);
+    listContainer.appendChild(card);
   });
 }
 
-// Detail Page Handler
-async function loadDetail(id) {
+// Open Detail Screen with Full Info & Enlarged Images
+async function openPropertyDetail(id) {
   const res = await fetch(`/api/property/${id}`);
   const data = await res.json();
 
-  const gallery = document.getElementById('detail-gallery');
-  gallery.innerHTML = (data.images || []).map(url => `<img src="${url}">`).join('');
+  const gallery = document.getElementById('enlarged-gallery');
+  gallery.innerHTML = (data.images || []).map(imgUrl => `<img src="${imgUrl}" alt="Full Image">`).join('');
 
-  const info = document.getElementById('detail-info');
+  const info = document.getElementById('full-property-info');
   info.innerHTML = `
-    <span class="badge">✓ Verified</span>
-    <h2 style="margin:8px 0 4px 0;">${data.title}</h2>
-    <div style="color:#6e7191; margin-bottom:8px;">${data.location}</div>
-    <div style="font-size:1.4rem; font-weight:bold; color:var(--primary);">₹ ${data.price} <span style="font-size:0.9rem; color:#666;">/month</span></div>
+    <span class="badge-verified">✓ Verified</span>
+    <h2 style="margin: 8px 0;">${data.title}</h2>
+    <div style="color: var(--text-muted); margin-bottom: 12px;">${data.location}</div>
     
-    <div style="background:#f8f9fa; padding:12px; border-radius:10px; margin-top:15px;">
-      <p style="margin:4px 0;"><strong>Furnishing:</strong> ${data.furnishing || 'N/A'}</p>
-      <p style="margin:4px 0;"><strong>Deposit:</strong> ₹ ${data.deposit || '3,000,00'}</p>
-      <p style="margin:4px 0;"><strong>Size:</strong> ${data.size || 'N/A'}</p>
+    <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 16px;">
+      ₹ ${data.price} <span style="font-size:0.9rem; color:#6e7191;">/month</span>
     </div>
-    <p style="color:#444; margin-top:12px; line-height:1.4;">${data.description || ''}</p>
+
+    <div style="background:#f8f9fa; padding:14px; border-radius:12px; margin-bottom:16px;">
+      <p style="margin:6px 0;"><strong>Furnishing Status:</strong> ${data.furnishing || 'N/A'}</p>
+      <p style="margin:6px 0;"><strong>Security Deposit:</strong> ₹ ${data.deposit || '3,000,00'}</p>
+      <p style="margin:6px 0;"><strong>Built-up Area:</strong> ${data.size || 'N/A'}</p>
+    </div>
+
+    <h3>Description</h3>
+    <p style="color: #444; line-height: 1.5;">${data.description || 'No detailed description provided.'}</p>
   `;
 
-  switchScreen('detail-screen');
-}
-
+  navigateTo('detail-page');
+                                                                 }
