@@ -7,7 +7,7 @@ from bson.objectid import ObjectId
 app = Flask(__name__, static_folder='static')
 
 # MongoDB Connection
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://pawandevprasad_db_user:12345@cluster.mongodb.net/?retryWrites=true&w=majority")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB")
 client = MongoClient(MONGO_URI)
 db = client['gg']
 properties_col = db['txtCities']
