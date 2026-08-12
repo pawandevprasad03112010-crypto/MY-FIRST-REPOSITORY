@@ -1,93 +1,54 @@
-from fastapi import FastAPI, Request, Form, status
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from pymongo import MongoClient
-import re
 import os
+from flask import Flask, jsonify, request, send_from_directory
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
-app = FastAPI(title="Purple Gold Search Engine")
+app = Flask(__name__, static_folder='static')
 
-# Templates Setup
-templates = Jinja2Templates(directory="templates")
-
-# ==============================================================================
-# 🔗 APNA MONGODB ATLAS URL YAHAN BHAREIN
-# ==============================================================================
-# Render ke Environment Variables me set karein ya direct quote me string daalein
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB")
-
-# Aapke Screenshot Ke According Exact Names Set Kiye Gaye Hain:
-DB_NAME = "gg"
-COLLECTION_NAME = "txtCities"
-
+# MongoDB Connection (Render Environment Variable se URI lega)
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB")
 client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
-collection = db[COLLECTION_NAME]
-# ==============================================================================
+db = client['gg']
+properties_col = db['txtCities']
 
-USER_CREDENTIALS = {"admin": "12345"}
+# Root Route: Bina kisi HTML template ke sirf Script tag load karega
+@app.route('/')
+def index():
+    return '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Property App</title></head><body style="margin:0; padding:0; background:#f7f7fc;"><script src="/static/app.js"></script></body></html>'
 
-# --- AUTHENTICATION ROUTES ---
-
-@app.get("/", response_class=HTMLResponse)
-async def login_page(request: Request):
-    return templates.TemplateResponse(request=request, name="login.html")
-
-@app.post("/login")
-async def login(request: Request, username: str = Form(...), password: str = Form(...)):
-    if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
-        response = RedirectResponse(url="/search-page", status_code=status.HTTP_303_SEE_OTHER)
-        response.set_cookie(key="user_session", value=username)
-        return response
-    else:
-        return templates.TemplateResponse(
-            request=request, 
-            name="login.html", 
-            context={"error": "Galat Username ya Password! Wapas try karein."}
-        )
-
-@app.get("/search-page", response_class=HTMLResponse)
-async def search_page(request: Request):
-    user = request.cookies.get("user_session")
-    if not user:
-        return RedirectResponse(url="/")
-    return templates.TemplateResponse(
-        request=request, 
-        name="index.html", 
-        context={"user": user}
-    )
-
-@app.get("/logout")
-async def logout():
-    response = RedirectResponse(url="/")
-    response.delete_cookie("user_session")
-    return response
-
-# --- REALTIME AUTOCOMPLETE SEARCH API ---
-@app.get("/api/search")
-async def api_search(q: str = ""):
-    query = q.strip()
+# Search API
+@app.route('/api/search', methods=['GET'])
+def search_properties():
+    query = request.args.get('q', '').strip()
     if not query:
-        return JSONResponse([])
+        results = list(properties_col.find({}))
+    else:
+        regex_query = {"$regex": query, "$options": "i"}
+        results = list(properties_col.find({
+            "$or": [
+                {"location": regex_query},
+                {"title": regex_query},
+                {"furnishing": regex_query}
+            ]
+        }))
 
-    regex_pattern = re.compile(re.escape(query), re.IGNORECASE)
+    for doc in results:
+        doc['_id'] = str(doc['_id'])
+    
+    return jsonify(results)
 
-    # AAPKE DATABASE FIELDS KE ACCORDING UPDATED SEARCH FILTER:
-    search_filter = {
-        "$or": [
-            {"name": regex_pattern},
-            {"city": regex_pattern},
-            {"sector": regex_pattern},
-            {"location": regex_pattern},
-            {"phone_no": regex_pattern}
-        ]
-    }
+# Get Single Property Detail API
+@app.route('/api/property/<id>', methods=['GET'])
+def get_property(id):
+    try:
+        doc = properties_col.find_one({"_id": ObjectId(id)})
+        if doc:
+            doc['_id'] = str(doc['_id'])
+            return jsonify(doc)
+        return jsonify({"error": "Property not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
-    results = list(collection.find(search_filter, {"_id": 0}).limit(15))
-    return JSONResponse(results)
-
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("app:app", host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
     
