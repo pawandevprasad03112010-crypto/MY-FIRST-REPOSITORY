@@ -1,5 +1,7 @@
-Flask
-flask-cors
-selenium
-webdriver-manager
-gunicorn
+flask==3.0.3
+selenium==4.20.0
+beautifulsoup4==4.12.3
+pymongo==4.7.2
+dnspython==4.6.0
+webdriver-manager==4.0.1
+gunicorn==22.0.0
