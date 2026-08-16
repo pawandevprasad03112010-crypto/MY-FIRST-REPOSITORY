@@ -12,16 +12,12 @@ from datetime import datetime
 app = Flask(__name__)
 
 # =========================================================
-# ⚙️ AAPKI MONGODB SETTINGS (YAHAN APNA DETAILS DAALEIN)
+# ⚙️ AAPKI MONGODB SETTINGS (YAHAN DETAILS DAALEIN)
 # =========================================================
-# Option 1: Render Environment Variable (Recommended)
-# Option 2: Direct string mein apna URL yahan paste karein
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB")
+MONGO_URI = os.getenv("MONGO_URI", "YOUR_MONGO_DB_URI_HERE")
+DB_NAME = "apne_database_ka_naam"           
+COLLECTION_NAME = "apne_collection_ka_naam"   
 
-DB_NAME = "gg"
-COLLECTION_NAME = "txtCities"   # Change karein (e.g. "leads")
-
-# MongoDB Connection Setup
 client = None
 db = None
 properties_col = None
@@ -47,7 +43,9 @@ def get_headless_driver():
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
     
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # Render cloud ke liye automatic Chrome setup
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
     return driver
 
 def scrape_99acres(location_query):
@@ -105,7 +103,7 @@ def scrape_99acres(location_query):
         if driver:
             driver.quit()
 
-    # Database insertion
+    # Database Insertion
     if properties_col is not None and properties_data:
         try:
             properties_col.insert_many(properties_data)
@@ -229,4 +227,4 @@ def api_scrape():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-    
+        
