@@ -1,7 +1,6 @@
 flask
-selenium
+requests
 beautifulsoup4
 pymongo
 dnspython
-webdriver-manager
 gunicorn
