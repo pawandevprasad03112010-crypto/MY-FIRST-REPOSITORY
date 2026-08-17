@@ -1,6 +1,5 @@
 import json
 import urllib.parse
-from bs4 import BeautifulSoup
 from flask import Flask, render_template_string, request
 import requests
 
