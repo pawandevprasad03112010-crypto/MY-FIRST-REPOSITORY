@@ -65,9 +65,5 @@ def search_pgs(request: Request, query: str = Form(...)):
             continue
         time.sleep(0.5)
 
-    return templates.TemplateResponse("index.html", {
-        "request": request, 
-        "results": pg_list, 
-        "query": user_input
-    })
+    return templates.TemplateResponse("index.html", context={"request": request, "results": pg_list, "query": user_input})
     
