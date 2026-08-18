@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI PG Scraper</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input[type="text"] { width: 75%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 15px; font-size: 16px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .copy-btn { background-color: #28a745; margin-bottom: 15px; width: 100%; font-weight: bold; }
+        .copy-btn:hover { background-color: #218838; }
+        pre { background: #eee; padding: 15px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; font-size: 15px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>PG डेटा फाइंडर (FastAPI)</h2>
+    <form method="POST">
+        <input type="text" name="query" value="{{ query }}" placeholder="उदा. Sector 90 Gurgaon" required>
+        <button type="submit">सर्च करें</button>
+    </form>
+
+    {% if results %}
+        <h3>परिणाम (कुल: {{ results | length }})</h3>
+        <button class="copy-btn" onclick="copyAllData()">📋 एक क्लिक में सारा डेटा कॉपी करें</button>
+        <pre id="output-box">{% for item in results %}{{ item }}
+
+{% endfor %}</pre>
+    {% elif query %}
+        <p>कोई रिज़ल्ट नहीं मिला।</p>
+    {% endif %}
+</div>
+
+<script>
+function copyAllData() {
+    const textToCopy = document.getElementById("output-box").innerText;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        alert("सारा डेटा सफलतापूर्वक कॉपी हो गया!");
+    }).catch(err => {
+        alert("कॉपी करने में विफल रहा।");
+    });
+}
+</script>
+
+</body>
+</html>
+
