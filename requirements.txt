@@ -1,6 +1,4 @@
-fastapi
-uvicorn
-jinja2
+flask
 requests
 beautifulsoup4
-python-multipart
+gunicorn
