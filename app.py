@@ -1,95 +1,74 @@
-import json
-from duckduckgo_search import DDGS
-from flask import Flask, render_template_string, request
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+import requests
+from bs4 import BeautifulSoup
+import re
+import urllib.parse
+import time
 
-app = Flask(__name__)
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Maps JSON Scraper</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
-        .container { max-width: 750px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        input[type="text"] { width: 70%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 10px 15px; font-size: 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #218838; }
-        .copy-btn { background: #007bff; margin-top: 10px; margin-bottom: 10px; }
-        pre { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 450px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Live Maps Business Scraper</h2>
-        <form method="POST">
-            <input type="text" name="location" placeholder="e.g. PG in Kolkata" value="{{ query }}" required>
-            <button type="submit">Search</button>
-        </form>
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "results": [], "query": ""})
 
-        {% if json_data %}
-            <h3>Scraped Data (JSON):</h3>
-            <button class="copy-btn" onclick="copyData()">Copy JSON Data</button>
-            <pre id="jsonBlock">{{ json_data }}</pre>
-        {% endif %}
-    </div>
+@app.post("/", response_class=HTMLResponse)
+async def search_pgs(request: Request, query: str = Form(...)):
+    user_input = query.strip()
+    if not user_input:
+        user_input = "Sector 90 Gurgaon"
 
-    <script>
-        function copyData() {
-            var copyText = document.getElementById("jsonBlock").innerText;
-            navigator.clipboard.writeText(copyText);
-            alert("JSON Data copied to clipboard!");
-        }
-    </script>
-</body>
-</html>
-"""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9,hi;q=0.8"
+    }
 
+    seen_phones = set()
+    pg_list = []
 
-def scrape_maps_free(query):
-    results = []
-    try:
-        with DDGS() as ddgs:
-            # Fetching map locations directly
-            maps_results = list(ddgs.maps(query, max_results=20))
+    # कई पेजों से डेटा निकालने की प्रक्रिया
+    for page in range(1, 4):
+        search_query = f"PG hostel contact number {user_input}"
+        url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(search_query)}&s={(page-1)*30}"
+        
+        try:
+            response = requests.post(url, data={'q': search_query}, headers=headers, timeout=8)
+            if response.status_code != 200:
+                continue
 
-            for idx, item in enumerate(maps_results, 1):
-                results.append(
-                    {
-                        "id": idx,
-                        "title": item.get("title"),
-                        "address": item.get("address"),
-                        "phone": item.get("phone", "N/A"),
-                        "latitude": item.get("latitude"),
-                        "longitude": item.get("longitude"),
-                    }
-                )
+            soup = BeautifulSoup(response.text, 'html.parser')
+            results = soup.find_all('div', class_='result__body')
 
-        if not results:
-            results.append({"message": "No places found for this query."})
+            for result in results:
+                text = result.get_text(separator=' ')
+                phone_matches = re.findall(r'(?:\+91[\-\s]?)?[6-9]\d{9}', text)
+                
+                for phone in phone_matches:
+                    clean_phone = phone.replace("+91", "").replace("-", "").replace(" ", "").strip()
+                    if clean_phone.startswith("0"):
+                        clean_phone = clean_phone[1:]
+                        
+                    if clean_phone not in seen_phones and len(clean_phone) == 10:
+                        seen_phones.add(clean_phone)
+                        
+                        title_elem = result.find('h2', class_='result__title')
+                        name = title_elem.get_text().strip() if title_elem else "PG Residency"
+                        name = re.sub(r'(?i)(contact|number|phone|details|kolkata|gurgaon|sector).*', '', name).strip()
+                        if not name:
+                            name = "PG Accommodation"
+                        
+                        pg_data = f"Name = {name[:45]}\nPhone number = {clean_phone}\nRent = sin= dou= tri= fou="
+                        pg_list.append(pg_data)
+                        
+        except Exception:
+            continue
+        time.sleep(0.5)
 
-    except Exception as e:
-        results.append({"error": str(e)})
-
-    return results
-
-
-@app.route("/", methods=["GET", "POST"])
-def index():
-    json_data = None
-    query = ""
-    if request.method == "POST":
-        query = request.form.get("location")
-        scraped_list = scrape_maps_free(query)
-        json_data = json.dumps(scraped_list, indent=4, ensure_ascii=False)
-
-    return render_template_string(
-        HTML_TEMPLATE, json_data=json_data, query=query
-    )
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    return templates.TemplateResponse("index.html", {
+        "request": request, 
+        "results": pg_list, 
+        "query": user_input
+    })
     
