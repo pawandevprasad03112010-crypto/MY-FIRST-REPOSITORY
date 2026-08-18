@@ -11,11 +11,11 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
+def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "results": [], "query": ""})
 
 @app.post("/", response_class=HTMLResponse)
-async def search_pgs(request: Request, query: str = Form(...)):
+def search_pgs(request: Request, query: str = Form(...)):
     user_input = query.strip()
     if not user_input:
         user_input = "Sector 90 Gurgaon"
@@ -28,7 +28,6 @@ async def search_pgs(request: Request, query: str = Form(...)):
     seen_phones = set()
     pg_list = []
 
-    # कई पेजों से डेटा निकालने की प्रक्रिया
     for page in range(1, 4):
         search_query = f"PG hostel contact number {user_input}"
         url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(search_query)}&s={(page-1)*30}"
