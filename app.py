@@ -65,5 +65,10 @@ def search_pgs(request: Request, query: str = Form(...)):
             continue
         time.sleep(0.5)
 
-    return templates.TemplateResponse("index.html", context={"request": request, "results": pg_list, "query": user_input})
+    # यह नया और सुरक्षित तरीका है जो किसी भी वर्जन में एरर नहीं देगा
+    return templates.TemplateResponse(
+        request=request, 
+        name="index.html", 
+        context={"results": pg_list, "query": user_input}
+    )
     
