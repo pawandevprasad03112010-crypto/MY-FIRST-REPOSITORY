@@ -1,68 +1,30 @@
 from flask import Flask, render_template, request
 import requests
-from bs4 import BeautifulSoup
-import re
-import urllib.parse
-import time
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET", "POST"])
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    pg_list = []
-    user_input = "Sector 90 Gurgaon"
-    
-    if request.method == "POST":
-        user_input = request.form.get("query", "").strip()
-        if not user_input:
-            user_input = "Sector 90 Gurgaon"
-
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept-Language": "en-US,en;q=0.9,hi;q=0.8"
-        }
-
-        seen_phones = set()
-
-        for page in range(1, 4):
-            search_query = f"PG hostel contact number {user_input}"
-            url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(search_query)}&s={(page-1)*30}"
+    results = []
+    query = ""
+    if request.method == 'POST':
+        query = request.form.get('query')
+        if query:
+            # Google block se bachne ke liye hum DuckDuckGo ya alternative search API ka HTML version use kar sakte hain
+            # Jo phone/browser par easily parse ho jata hai bina block ke.
+            url = f"https://html.duckduckgo.com/html/?q={query}"
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
             
-            try:
-                response = requests.post(url, data={'q': search_query}, headers=headers, timeout=8)
-                if response.status_code != 200:
-                    continue
-
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                from bs4 import BeautifulSoup
                 soup = BeautifulSoup(response.text, 'html.parser')
-                results = soup.find_all('div', class_='result__body')
-
-                for result in results:
-                    text = result.get_text(separator=' ')
-                    phone_matches = re.findall(r'(?:\+91[\-\s]?)?[6-9]\d{9}', text)
+                # DuckDuckGo ke results extract karna
+                for a in soup.find_all('a', class_='result__snippet'):
+                    results.append(a.text.strip())
                     
-                    for phone in phone_matches:
-                        clean_phone = phone.replace("+91", "").replace("-", "").replace(" ", "").strip()
-                        if clean_phone.startswith("0"):
-                            clean_phone = clean_phone[1:]
-                            
-                        if clean_phone not in seen_phones and len(clean_phone) == 10:
-                            seen_phones.add(clean_phone)
-                            
-                            title_elem = result.find('h2', class_='result__title')
-                            name = title_elem.get_text().strip() if title_elem else "PG Residency"
-                            name = re.sub(r'(?i)(contact|number|phone|details|kolkata|gurgaon|sector).*', '', name).strip()
-                            if not name:
-                                name = "PG Accommodation"
-                            
-                            pg_data = f"Name = {name[:45]}\nPhone number = {clean_phone}\nRent = sin= dou= tri= fou="
-                            pg_list.append(pg_data)
-                            
-            except Exception:
-                continue
-            time.sleep(0.5)
+    return render_template('index.html', results=results, query=query)
 
-    return render_template("index.html", results=pg_list, query=user_input)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
     
