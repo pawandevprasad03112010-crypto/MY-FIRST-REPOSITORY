@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Rocket Engine Interactive Blueprint</title>
+    <style>
+        body { background: #0f0f0f; color: #eee; font-family: 'Arial', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+        h2 { color: #fff; margin-bottom: 10px; }
+        svg { background: #1a1a1a; border: 1px solid #333; margin-top: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .pipe { stroke-width: 6; fill: none; stroke-linecap: round; }
+        .fuel-pipe { stroke: #00d4ff; stroke-dasharray: 10; animation: flow 2s linear infinite; }
+        .ox-pipe { stroke: #ff4d00; stroke-dasharray: 10; animation: flow 2s linear infinite; }
+        .component { fill: #333; stroke: #fff; stroke-width: 2; }
+        @keyframes flow { to { stroke-dashoffset: -20; } }
+        text { fill: #fff; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Advanced Interactive Rocket Engine Schematic</h2>
+    <svg width="600" height="800" viewBox="0 0 600 800">
+        <!-- Fuel Feed -->
+        <path d="M150 50 L150 200 Q150 250 200 250" class="pipe fuel-pipe" />
+        <!-- Oxidizer Feed -->
+        <path d="M450 50 L450 200 Q450 250 400 250" class="pipe ox-pipe" />
+        
+        <!-- Turbopumps -->
+        <circle cx="200" cy="250" r="30" class="component" />
+        <circle cx="400" cy="250" r="30" class="component" />
+        <text x="200" y="255" text-anchor="middle">FUEL PUMP</text>
+        <text x="400" y="255" text-anchor="middle">OX PUMP</text>
+        
+        <!-- Cooling Channels (Regenerative) -->
+        <path d="M250 300 L250 500" class="pipe fuel-pipe" style="stroke-width: 3;" />
+        <path d="M350 300 L350 500" class="pipe fuel-pipe" style="stroke-width: 3;" />
+        
+        <!-- Combustion Chamber -->
+        <rect x="250" y="450" width="100" height="150" class="component" />
+        <text x="300" y="520" text-anchor="middle">COMBUSTION</text>
+        <text x="300" y="540" text-anchor="middle">CHAMBER</text>
+        
+        <!-- Nozzle -->
+        <polygon points="250,600 350,600 400,750 200,750" class="component" />
+        <text x="300" y="680" text-anchor="middle">NOZZLE</text>
+    </svg>
+</body>
+</html>
