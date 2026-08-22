@@ -38,9 +38,8 @@
             // Frame ko Base64 format mein convert karna
             const imageData = canvas.toDataURL('image/jpeg');
 
-            // Backend server par POST request bhejna
-            // (Jab Render par deploy karein, toh yahan apna Render URL daalein)
-            fetch('http://localhost:5000/upload', {
+            // Aapka Render URL yahan set kar diya gaya hai
+            fetch('https://my-first-repository-5c3u.onrender.com/upload', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
