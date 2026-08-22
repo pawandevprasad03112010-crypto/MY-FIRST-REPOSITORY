@@ -15,8 +15,8 @@ MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45
 client = MongoClient(MONGO_URI)
 
 # Aapke bataye gaye Database aur Collection ke naam
-db = client["gg"]
-collection = db["txtCities"]
+db = client["xxx"]
+collection = db["xxx"]
 
 
 # 1. Root route jo aapka frontend (index.html) page dikhayega
