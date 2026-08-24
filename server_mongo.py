@@ -19,7 +19,7 @@ app = Flask(__name__, template_folder=".")
 CORS(app)
 
 # MongoDB Connection
-MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p4qsrf.mongodb.net/?retryWrites=true&w=majority"
+MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?appName=FIRSTMONGODB"
 client = MongoClient(MONGO_URI)
 
 # Database "gg" aur collection "txtCities"
