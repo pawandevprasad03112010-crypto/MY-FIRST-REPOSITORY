@@ -1,68 +1,76 @@
-import datetime
 import os
+import datetime
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from pymongo import MongoClient
+import cloudinary
+import cloudinary.uploader
 
-# Flask app initialize karna (templates ke liye current folder set hai)
+# Cloudinary Configuration
+cloudinary.config(
+    cloud_name = "nuhlfsdu",
+    api_key = "473579919558511",
+    api_secret = "BJEn_ZyhVXEtdn_wed4jXAzXFkU",
+    secure = True
+)
+
+# Flask app initialization
 app = Flask(__name__, template_folder=".")
-CORS(app)  # Cross-Origin requests allow karne ke liye
+CORS(app)
 
-# Aapki MongoDB Atlas connection string (Password ki jagah apna asli password likhein)
-MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p45qsrf.mongodb.net/?retryWrites=true&w=majority&appName=FIRSTMONGODB"
-
-# MongoDB client connection establish karna
+# MongoDB Connection
+MONGO_URI = "mongodb+srv://pawandevprasad03112010_db_user:12345@firstmongodb.p4qsrf.mongodb.net/?retryWrites=true&w=majority"
 client = MongoClient(MONGO_URI)
 
-# Aapke bataye gaye Database aur Collection ke naam
-db = client["xxx"]
-collection = db["xxx"]
+# Database "gg" aur collection "txtCities"
+db = client["IMAGE"]
+collection = db["IMAGE"]
 
-
-# 1. Root route jo aapka frontend (index.html) page dikhayega
 @app.route("/")
 def index():
-  return render_template("index.html")
+    return render_template("index.html")
 
-
-# 2. Yeh route frontend se aane wale camera frames ko receive karke MongoDB mein save karega
 @app.route("/upload", methods=["POST"])
 def upload_frame():
-  try:
-    data = request.json
-    image_data = data.get("image")  # Base64 image string
+    try:
+        data = request.json
+        image_data = data.get("image")  # Base64 image string
 
-    if image_data:
-      # MongoDB document structure
-      frame_document = {
-          "image_data": image_data,
-          "timestamp": datetime.datetime.utcnow(),
-      }
+        if image_data:
+            # 1. Image ko Cloudinary par upload karein
+            upload_result = cloudinary.uploader.upload(
+                image_data,
+                folder = "webcam_captures"
+            )
+            
+            image_url = upload_result.get("secure_url")
+            public_id = upload_result.get("public_id")
 
-      # Data ko seedha 'gg' database ke 'txtCities' collection mein insert karna
-      result = collection.insert_one(frame_document)
+            # 2. Cloudinary se mila URL MongoDB mein document banakar save karein
+            frame_document = {
+                "image_url": image_url,
+                "public_id": public_id,
+                "timestamp": datetime.datetime.utcnow()
+            }
+            
+            result = collection.insert_one(frame_document)
 
-      print(
-          f"[+] Success: Frame successfully MongoDB mein save ho gaya! ID:"
-          f" {result.inserted_id}"
-      )
-      return jsonify(
-          {
-              "status": "success",
-              "message": "Saved to MongoDB successfully",
-              "id": str(result.inserted_id),
-          }
-      )
+            print(f"[+] Success: Cloudinary URL MongoDB mein save ho gaya! ID: {result.inserted_id}")
 
-    return jsonify({"status": "error", "message": "No image data found"}), 400
+            return jsonify({
+                "status": "success",
+                "message": "Image saved to Cloudinary & URL stored in MongoDB",
+                "mongo_id": str(result.inserted_id),
+                "image_url": image_url
+            })
 
-  except Exception as e:
-    print(f"[-] MongoDB Error: {e}")
-    return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"status": "error", "message": "No image data found"}), 400
 
+    except Exception as e:
+        print(f"[-] Error: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
-  # Render ya local server ke liye dynamic port configuration
-  port = int(os.environ.get("PORT", 5000))
-  app.run(host="0.0.0.0", port=port)
-  
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+          
