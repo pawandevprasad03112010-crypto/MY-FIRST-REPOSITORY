@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Aapki Google Custom Search API Key aur Search Engine ID
+// आपकी Google Custom Search API Key और Search Engine ID
 const GOOGLE_API_KEY = 'AIzaSyCddELLf2alV2gqURGh3grmcfrAUKwRfWw'; 
 const SEARCH_ENGINE_ID = 'd160c8f0305044eae';
 
@@ -15,14 +15,15 @@ app.post('/api/scrape', async (req, res) => {
     const { location, propertyType, bhk } = req.body;
     
     if (!location) {
-        return res.status(400).json({ error: 'Location dalna anivarya hai.' });
+        return res.status(400).json({ error: 'लोकेशन डालना अनिवार्य है।' });
     }
 
     try {
-        let searchQuery = `site:99acres.com ${bhk ? bhk + ' BHK' : ''} property in ${location} broker agent`;
+        // यहाँ से 'site:99acres.com' हटा दिया गया है क्योंकि सर्च इंजन पहले से सेट है
+        let searchQuery = `${bhk ? bhk + ' BHK' : ''} property in ${location} broker agent`;
         let googleApiUrl = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(searchQuery)}`;
 
-        console.log(`Google API se khoj ki ja rahi hai: ${searchQuery}`);
+        console.log(`गूगल एपीआई से खोज की जा रही है: ${searchQuery}`);
 
         const response = await axios.get(googleApiUrl);
         const items = response.data.items || [];
@@ -34,7 +35,7 @@ app.post('/api/scrape', async (req, res) => {
             let snippet = item.snippet || '';
             let link = item.link || 'NA';
 
-            // Owner wali listing ko chhant kar bahar karein, sirf broker/agent rakhein
+            // ओनर वाली लिस्टिंग को छांटकर बाहर करें, सिर्फ ब्रोकर/एजेंट रखें
             if (snippet.toLowerCase().includes('owner')) {
                 return; 
             }
@@ -111,7 +112,7 @@ app.post('/api/scrape', async (req, res) => {
                     owner_type: "AGENT"
                 },
                 title_and_description: {
-                    title: `${location} mein ${bhk ? bhk + ' BHK' : ''} broker property`,
+                    title: `${location} में ${bhk ? bhk + ' BHK' : ''} ब्रोकर प्रॉपर्टी`,
                     description: `Google custom search live result for ${location}`
                 },
                 location: {
@@ -157,7 +158,7 @@ app.post('/api/scrape', async (req, res) => {
         res.json({ success: true, data: results });
 
     } catch (error) {
-        console.error('API truti:', error.message);
+        console.error('एपीआई त्रुटि:', error.message);
         res.json({ 
             success: true, 
             data: [{
@@ -174,7 +175,7 @@ app.post('/api/scrape', async (req, res) => {
                     owner_type: "AGENT"
                 },
                 title_and_description: {
-                    title: `${location} - Google search API fallback`,
+                    title: `${location} - गूगल सर्च एपीआई फॉलबैक`,
                     description: "Google search API connection response"
                 },
                 location: {
@@ -221,5 +222,5 @@ app.post('/api/scrape', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port: http://localhost:${PORT}`);
+    console.log(`सर्वर इस पोर्ट पर चल रहा है: http://localhost:${PORT}`);
 });
