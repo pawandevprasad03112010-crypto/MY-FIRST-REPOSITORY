@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>99acres स्मार्ट स्क्रैपर</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 30px; color: #333; }
+        .container { max-width: 950px; margin: 0 auto; background: #fff; padding: 35px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #444; }
+        input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        button.action-btn { background-color: #e67e22; color: white; border: none; padding: 14px 20px; font-size: 18px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        button.action-btn:hover { background-color: #d35400; }
+        #loader { display: none; text-align: center; margin: 20px 0; font-size: 16px; color: #2980b9; font-weight: bold; }
+        .results-container { margin-top: 30px; }
+        .card { background: #fafafa; border-left: 5px solid #e67e22; padding: 15px; margin-bottom: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: flex-start; gap: 15px; }
+        .property-img { width: 110px; height: 90px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+        .card-content { flex-grow: 1; }
+        .card h3 { margin: 0 0 6px 0; color: #2c3e50; font-size: 17px; }
+        .card p { margin: 4px 0; font-size: 13px; color: #555; }
+        pre { background: #2d3748; color: #e2e8f0; padding: 8px; border-radius: 4px; overflow-x: auto; font-size: 11px; max-height: 100px; margin-top: 5px; }
+        .copy-btn { background-color: #27ae60; color: white; border: none; padding: 8px 14px; font-size: 13px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: background 0.2s; font-weight: bold; align-self: center; }
+        .copy-btn:hover { background-color: #219653; }
+        .copy-btn.copied { background-color: #2980b9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>99acres ब्रोकर और इमेज स्क्रैपर</h1>
+    
+    <div class="form-group">
+        <label for="location">लोकेशन दर्ज करें (जैसे: Gurgaon, Noida):</label>
+        <input type="text" id="location" placeholder="लोकेशन का नाम लिखें...">
+    </div>
+
+    <div class="form-group">
+        <label for="bhk">BHK फ़िल्टर चुनें:</label>
+        <select id="bhk">
+            <option value="">सभी (All BHK)</option>
+            <option value="1">1 BHK</option>
+            <option value="2">2 BHK</option>
+            <option value="3">3 BHK</option>
+            <option value="4">4 BHK</option>
+            <option value="5">5 BHK</option>
+            <option value="6">6 BHK</option>
+            <option value="7">7 BHK</option>
+        </select>
+    </div>
+
+    <button class="action-btn" onclick="startScraping()">स्क्रैप शुरू करें</button>
+
+    <div id="loader">डेटा और इमेज लोड हो रहे हैं, कृपया प्रतीक्षा करें...</div>
+
+    <div class="results-container" id="results"></div>
+</div>
+
+<script>
+    async function startScraping() {
+        const location = document.getElementById('location').value.trim();
+        const bhk = document.getElementById('bhk').value;
+        const resultsDiv = document.getElementById('results');
+        const loader = document.getElementById('loader');
+
+        if (!location) {
+            alert('कृपया पहले लोकेशन भरें!');
+            return;
+        }
+
+        resultsDiv.innerHTML = '';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch('/api/scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ location, bhk })
+            });
+
+            const result = await response.json();
+            loader.style.display = 'none';
+
+            if (result.success && result.data.length > 0) {
+                result.data.forEach((item, index) => {
+                    const jsonString = JSON.stringify(item, null, 2);
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <img src="${item.image}" class="property-img" alt="Property Image" onerror="this.src='https://via.placeholder.com/110x90?text=No+Image'">
+                        <div class="card-content">
+                            <h3>#${index + 1} - ${item.title}</h3>
+                            <p><strong>कीमत:</strong> ${item.price}</p>
+                            <p><strong>माध्यम:</strong> ${item.postedBy}</p>
+                            <p><strong>फ़ोन नंबर:</strong> <span style="color: #c0392b; font-weight: bold;">${item.phoneNumber}</span></p>
+                            <details>
+                                <summary style="cursor:pointer; color: #2980b9; font-size: 12px;">पूरा JSON कोड देखें (इमेज URL सहित)</summary>
+                                <pre>${jsonString}</pre>
+                            </details>
+                        </div>
+                        <button class="copy-btn" onclick="copyJson(this, \`${encodeURIComponent(jsonString)}\`)">JSON कॉपी करें</button>
+                    `;
+                    resultsDiv.appendChild(card);
+                });
+            } else {
+                resultsDiv.innerHTML = '<p style="text-align:center; color:red;">कोई डेटा नहीं मिला या साइट द्वारा अनुरोध ब्लॉक किया गया।</p>';
+            }
+        } catch (error) {
+            loader.style.display = 'none';
+            alert('सर्वर से कनेक्ट करने में त्रुटि हुई।');
+        }
+    }
+
+    function copyJson(button, encodedJson) {
+        const jsonText = decodeURIComponent(encodedJson);
+        navigator.clipboard.writeText(jsonText).then(() => {
+            const originalText = button.innerText;
+            button.innerText = 'कॉपी हो गया! ✅';
+            button.classList.add('copied');
+            setTimeout(() => {
+                button.innerText = originalText;
+                button.classList.remove('copied');
+            }, 2000);
+        }).catch(err => {
+            console.error('कॉपी करने में विफल:', err);
+        });
+    }
+</script>
+
+</body>
+</html>
