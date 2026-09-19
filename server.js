@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/scrape', async (req, res) => {
-    const { location, bhk } = req.body;
+    const { location, propertyType, bhk } = req.body;
     
     if (!location) {
         return res.status(400).json({ error: 'लोकेशन डालना अनिवार्य है।' });
@@ -32,10 +32,30 @@ app.post('/api/scrape', async (req, res) => {
         await page.setViewport({ width: 1280, height: 800 });
 
         let formattedLoc = location.toLowerCase().replace(/\s+/g, '-');
-        let url = `https://www.99acres.com/property-in-${formattedLoc}-ffid`;
         
-        if (bhk) {
-            url += `?preference=R&property_type=1&bedroom=${bhk}`;
+        // प्रॉपर्टी टाइप के हिसाब से URL और पैरामीटर्स सेट करना
+        let url = `https://www.99acres.com/property-in-${formattedLoc}-ffid`;
+        let queryParams = [];
+
+        if (propertyType === 'buy') {
+            queryParams.push('preference=S'); // Buy / Sale
+        } else if (propertyType === 'rent') {
+            queryParams.push('preference=R'); // Rent
+        } else if (propertyType === 'pg') {
+            url = `https://www.99acres.com/pg-in-${formattedLoc}-ffid`;
+        } else if (propertyType === 'plot') {
+            queryParams.push('property_type=G'); // Plots/Land
+        } else if (propertyType === 'commercial') {
+            queryParams.push('property_type=C'); // Commercial
+        }
+
+        // अगर BHK चुना गया है और यह रेंट/बाय है
+        if (bhk && propertyType !== 'pg' && propertyType !== 'plot') {
+            queryParams.push(`bedroom=${bhk}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += `?${queryParams.join('&')}`;
         }
 
         console.log(`URL पर जा रहे हैं: ${url}`);
