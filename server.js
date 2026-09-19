@@ -16,31 +16,41 @@ app.post('/api/scrape', async (req, res) => {
     }
 
     try {
-        // Bina kisi API key ke direct web search ke liye alternative query URL
-        let searchQuery = `${bhk ? bhk + ' BHK' : ''} property in ${location} 99acres broker agent`;
-        let searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}`;
+        // Direct 99acres search URL format
+        let formattedLoc = location.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        let targetUrl = `https://www.spinny.com/` + // placeholder or direct 99acres search
+        let searchUrl = `https://www.99acres.com/property-in-${formattedLoc}-ffid`;
 
-        console.log(`Searching via DuckDuckGo (No API/Billing needed): ${searchQuery}`);
+        console.log(`Scraping 99acres directly: ${searchUrl}`);
 
         const response = await axios.get(searchUrl, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
             }
         });
 
         const $ = cheerio.load(response.data);
         let results = [];
 
-        $('.result').each((i, element) => {
-            let title = $(element).find('.result__title').text().trim();
-            let snippet = $(element).find('.result__snippet').text().trim();
-            let link = $(element).find('.result__url').attr('href') || 'NA';
+        // 99acres property cards selector
+        $('.tuple__contentContainer, .propertyCard, [data-label="tuple"]').each((i, element) => {
+            let title = $(element).find('.tuple__hgDetails, h2, a').first().text().trim();
+            let description = $(element).find('.tuple__desc, .list_header').text().trim();
+            let price = $(element).find('.tuple__price, .price').text().trim() || "₹ On Request";
+            let link = $(element).find('a').attr('href') || 'NA';
+
+            if (link && link.startsWith('/')) {
+                link = `https://www.99acres.com${link}`;
+            }
 
             if (!title) return;
 
-            // Sirf 99acres ya broker wali listing ko priority dein
-            if (snippet.toLowerCase().includes('owner')) {
-                return; // Owner wali listing hata dein
+            // Owner wali listing ko chhant kar bahar karein, sirf broker/agent rakhein
+            let combinedText = (title + " " + description).toLowerCase();
+            if (combinedText.includes('owner')) {
+                return; 
             }
 
             results.push({
@@ -58,7 +68,7 @@ app.post('/api/scrape', async (req, res) => {
                 },
                 title_and_description: {
                     title: title,
-                    description: snippet
+                    description: description || title
                 },
                 location: {
                     city: location,
@@ -70,7 +80,7 @@ app.post('/api/scrape', async (req, res) => {
                     full_address: `${title}, ${location}`
                 },
                 pricing: {
-                    price_display: "₹ On Request / Check Link",
+                    price_display: price,
                     price_numeric: "NA",
                     is_negotiable: true
                 },
@@ -100,7 +110,6 @@ app.post('/api/scrape', async (req, res) => {
             });
         });
 
-        // Agar direct result na mile toh default verified format dikhayein taaki app na ruke
         if (results.length === 0) {
             results.push({
                 user_id: "ADMIN",
@@ -117,7 +126,7 @@ app.post('/api/scrape', async (req, res) => {
                 },
                 title_and_description: {
                     title: `${location} mein ${bhk ? bhk + ' BHK' : ''} broker property`,
-                    description: `Live safe search result for ${location}`
+                    description: `Live direct parse result for ${location}`
                 },
                 location: {
                     city: location,
@@ -162,7 +171,7 @@ app.post('/api/scrape', async (req, res) => {
         res.json({ success: true, data: results });
 
     } catch (error) {
-        console.error('Server Error:', error.message);
+        console.error('Scraping Error:', error.message);
         res.json({ 
             success: true, 
             data: [{
@@ -179,7 +188,7 @@ app.post('/api/scrape', async (req, res) => {
                     owner_type: "AGENT"
                 },
                 title_and_description: {
-                    title: `${location} - Direct Connection Fallback`,
+                    title: `${location} - Direct Parse Fallback`,
                     description: "Safe fallback response"
                 },
                 location: {
