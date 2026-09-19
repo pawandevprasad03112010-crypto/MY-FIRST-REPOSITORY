@@ -42,7 +42,6 @@ app.post('/api/scrape', async (req, res) => {
 
         console.log(`URL पर अनुरोध भेजा जा रहा है: ${url}`);
 
-        // असली ब्राउज़र जैसा हेडर ताकि ब्लॉक न हो
         const response = await axios.get(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
@@ -55,7 +54,6 @@ app.post('/api/scrape', async (req, res) => {
         const $ = cheerio.load(response.data);
         let results = [];
 
-        // 99acres के कार्ड्स को पार्स करना
         $('.tuple__contentCard, [data-label="result-card"], .component__card').each((i, element) => {
             const title = $(element).find('.tuple__aptName, .tuple__subHeading, a.tuple__heading').text().trim() || 'N/A';
             const price = $(element).find('.tuple__price, div[data-label="price"]').text().trim() || 'N/A';
@@ -77,7 +75,7 @@ app.post('/api/scrape', async (req, res) => {
             return res.status(404).json({ error: 'साइट द्वारा अनुरोध ब्लॉक किया गया या कोई डेटा नहीं मिला।' });
         }
 
-        res.json({ success: true, data: results.slice(0, 10));
+        res.json({ success: true, data: results.slice(0, 10) });
 
     } catch (error) {
         console.error('स्क्रैपिंग त्रुटि:', error.message);
