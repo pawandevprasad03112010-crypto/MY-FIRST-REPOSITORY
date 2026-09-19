@@ -1,0 +1,13 @@
+{
+  "name": "99acres-scraper-app",
+  "version": "1.0.0",
+  "description": "99acres Broker, Phone & Image Scraper",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "puppeteer": "^22.0.0"
+  }
+}
