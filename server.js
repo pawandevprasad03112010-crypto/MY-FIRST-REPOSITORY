@@ -1,10 +1,7 @@
 const express = require('express');
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const axios = require('axios');
+const cheerio = require('cheerio');
 const path = require('path');
-
-// स्टील्थ प्लगइन जोड़ना ताकि बॉट डिटेक्शन से बचा जा सके
-puppeteer.use(StealthPlugin());
 
 const app = express();
 
@@ -18,26 +15,7 @@ app.post('/api/scrape', async (req, res) => {
         return res.status(400).json({ error: 'लोकेशन डालना अनिवार्य है।' });
     }
 
-    let browser;
     try {
-        browser = await puppeteer.launch({
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--disable-gpu',
-                '--window-size=1920x1080'
-            ]
-        });
-
-        const page = await browser.newPage();
-        
-        // असली यूजर जैसा व्यहार दिखाने के लिए Viewport और User-Agent सेट करना
-        await page.setViewport({ width: 1920, height: 1080 });
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
-
         let formattedLoc = location.toLowerCase().replace(/\s+/g, '-');
         let url = `https://www.99acres.com/property-in-${formattedLoc}-ffid`;
         let queryParams = [];
@@ -62,69 +40,48 @@ app.post('/api/scrape', async (req, res) => {
             url += `?${queryParams.join('&')}`;
         }
 
-        console.log(`URL पर जा रहे हैं: ${url}`);
-        
-        // पेज पर जाने और नेटवर्क गतिविधियों के शांत होने का इंतज़ार करने के लिए
-        await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+        console.log(`URL पर अनुरोध भेजा जा रहा है: ${url}`);
 
-        // थोड़ा रैंडम डिले ताकि बॉट न लगें
-        await new Promise(r => setTimeout(r, 5000));
+        // असली ब्राउज़र जैसा हेडर ताकि ब्लॉक न हो
+        const response = await axios.get(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8'
+            },
+            timeout: 15000
+        });
 
-        // पेज को थोड़ा स्क्रॉल करना ताकि लेज़ी-लोडिंग इमेजेस और डेटा लोड हो सकें
-        await page.evaluate(async () => {
-            await new Promise((resolve) => {
-                let totalHeight = 0;
-                let distance = 300;
-                let timer = setInterval(() => {
-                    window.scrollBy(0, distance);
-                    totalHeight += distance;
-                    if (totalHeight >= 1500) {
-                        clearInterval(timer);
-                        resolve();
-                    }
-                }, 200);
+        const $ = cheerio.load(response.data);
+        let results = [];
+
+        // 99acres के कार्ड्स को पार्स करना
+        $('.tuple__contentCard, [data-label="result-card"], .component__card').each((i, element) => {
+            const title = $(element).find('.tuple__aptName, .tuple__subHeading, a.tuple__heading').text().trim() || 'N/A';
+            const price = $(element).find('.tuple__price, div[data-label="price"]').text().trim() || 'N/A';
+            const postedByText = $(element).find('.tuple__dealerName, .tuple__postedBy, .badge__row').text().trim() || 'Verified Dealer';
+            
+            const imageElement = $(element).find('img');
+            const imageUrl = imageElement.attr('src') || imageElement.attr('data-src') || 'N/A';
+
+            results.push({
+                title: title,
+                price: price,
+                postedBy: postedByText,
+                phoneNumber: '+91 98765 XXXXX (ब्रोकर वेरीफाइड नंबर)',
+                image: imageUrl
             });
         });
 
-        await new Promise(r => setTimeout(r, 3000));
-
-        const listings = await page.evaluate(() => {
-            // 99acres के नए और पुराने दोनों तरह के कार्ड सिलेक्टर्स को टारगेट करना
-            const cards = document.querySelectorAll('.tuple__contentCard, [data-label="result-card"], .component__card');
-            let results = [];
-
-            cards.forEach(card => {
-                const title = card.querySelector('.tuple__aptName, .tuple__subHeading, a.tuple__heading')?.innerText?.trim() || 'N/A';
-                const price = card.querySelector('.tuple__price, div[data-label="price"]')?.innerText?.trim() || 'N/A';
-                const postedByText = card.querySelector('.tuple__dealerName, .tuple__postedBy, .badge__row')?.innerText?.trim() || 'Verified Dealer';
-                
-                const imageElement = card.querySelector('img');
-                const imageUrl = imageElement ? (imageElement.src || imageElement.getAttribute('data-src') || imageElement.getAttribute('srcset') || 'N/A') : 'N/A';
-
-                results.push({
-                    title: title,
-                    price: price,
-                    postedBy: postedByText,
-                    phoneNumber: '+91 98765 XXXXX (ब्रोकर वेरीफाइड नंबर)',
-                    image: imageUrl
-                });
-            });
-
-            return results.slice(0, 10);
-        });
-
-        await browser.close();
-        
-        if (listings.length === 0) {
-            return res.status(404).json({ error: 'साइट ने ब्लॉक कर दिया या कोई डेटा नहीं मिला।' });
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'साइट द्वारा अनुरोध ब्लॉक किया गया या कोई डेटा नहीं मिला।' });
         }
 
-        res.json({ success: true, data: listings });
+        res.json({ success: true, data: results.slice(0, 10));
 
     } catch (error) {
-        if (browser) await browser.close();
-        console.error('स्क्रैपिंग त्रुटि:', error);
-        res.status(500).json({ error: 'डेटा स्क्रैप करने में विफल।' });
+        console.error('स्क्रैपिंग त्रुटि:', error.message);
+        res.status(500).json({ error: 'डेटा फेच करने में विफल।' });
     }
 });
 
