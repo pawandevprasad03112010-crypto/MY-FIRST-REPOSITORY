@@ -37,7 +37,18 @@
     </div>
 
     <div class="form-group">
-        <label for="bhk">BHK फ़िल्टर चुनें:</label>
+        <label for="propertyType">प्रॉपर्टी का प्रकार चुनें:</label>
+        <select id="propertyType">
+            <option value="buy">खरीदने के लिए (Buy / Sale)</option>
+            <option value="rent">किराए के लिए (Rent)</option>
+            <option value="pg">पीजी (PG)</option>
+            <option value="plot">प्लॉट / ज़मीन (Plot / Land)</option>
+            <option value="commercial">कमर्शियल (Commercial)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="bhk">BHK फ़िल्टर चुनें (यदि लागू हो):</label>
         <select id="bhk">
             <option value="">सभी (All BHK)</option>
             <option value="1">1 BHK</option>
@@ -60,6 +71,7 @@
 <script>
     async function startScraping() {
         const location = document.getElementById('location').value.trim();
+        const propertyType = document.getElementById('propertyType').value;
         const bhk = document.getElementById('bhk').value;
         const resultsDiv = document.getElementById('results');
         const loader = document.getElementById('loader');
@@ -76,7 +88,7 @@
             const response = await fetch('/api/scrape', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ location, bhk })
+                body: JSON.stringify({ location, propertyType, bhk })
             });
 
             const result = await response.json();
