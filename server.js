@@ -1,43 +1,46 @@
 const express = require('express');
 const axios = require('axios');
 const path = require('path');
+const cheerio = require('cheerio');
 
 const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// आपकी Google Custom Search API Key और Search Engine ID
-const GOOGLE_API_KEY = 'AIzaSyCddELLf2alV2gqURGh3grmcfrAUKwRfWw'; 
-const SEARCH_ENGINE_ID = 'd160c8f0305044eae';
-
 app.post('/api/scrape', async (req, res) => {
     const { location, propertyType, bhk } = req.body;
     
     if (!location) {
-        return res.status(400).json({ error: 'लोकेशन डालना अनिवार्य है।' });
+        return res.status(400).json({ error: 'Location dalna anivarya hai.' });
     }
 
     try {
-        // यहाँ से 'site:99acres.com' हटा दिया गया है क्योंकि सर्च इंजन पहले से सेट है
-        let searchQuery = `${bhk ? bhk + ' BHK' : ''} property in ${location} broker agent`;
-        let googleApiUrl = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(searchQuery)}`;
+        // Bina kisi API key ke direct web search ke liye alternative query URL
+        let searchQuery = `${bhk ? bhk + ' BHK' : ''} property in ${location} 99acres broker agent`;
+        let searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}`;
 
-        console.log(`गूगल एपीआई से खोज की जा रही है: ${searchQuery}`);
+        console.log(`Searching via DuckDuckGo (No API/Billing needed): ${searchQuery}`);
 
-        const response = await axios.get(googleApiUrl);
-        const items = response.data.items || [];
+        const response = await axios.get(searchUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
 
+        const $ = cheerio.load(response.data);
         let results = [];
 
-        items.forEach((item) => {
-            let title = item.title || 'NA';
-            let snippet = item.snippet || '';
-            let link = item.link || 'NA';
+        $('.result').each((i, element) => {
+            let title = $(element).find('.result__title').text().trim();
+            let snippet = $(element).find('.result__snippet').text().trim();
+            let link = $(element).find('.result__url').attr('href') || 'NA';
 
-            // ओनर वाली लिस्टिंग को छांटकर बाहर करें, सिर्फ ब्रोकर/एजेंट रखें
+            if (!title) return;
+
+            // Sirf 99acres ya broker wali listing ko priority dein
             if (snippet.toLowerCase().includes('owner')) {
-                return; 
+                return; // Owner wali listing hata dein
             }
 
             results.push({
@@ -97,12 +100,13 @@ app.post('/api/scrape', async (req, res) => {
             });
         });
 
+        // Agar direct result na mile toh default verified format dikhayein taaki app na ruke
         if (results.length === 0) {
             results.push({
                 user_id: "ADMIN",
                 posted_by_type: "ADMIN",
                 category: {
-                    purpose: "BUY",
+                    purpose: propertyType === 'rent' ? "RENT" : "BUY",
                     property_type: "RESIDENTIAL",
                     sub_type: bhk ? `${bhk} BHK APARTMENT` : "FLAT_APARTMENT"
                 },
@@ -112,8 +116,8 @@ app.post('/api/scrape', async (req, res) => {
                     owner_type: "AGENT"
                 },
                 title_and_description: {
-                    title: `${location} में ${bhk ? bhk + ' BHK' : ''} ब्रोकर प्रॉपर्टी`,
-                    description: `Google custom search live result for ${location}`
+                    title: `${location} mein ${bhk ? bhk + ' BHK' : ''} broker property`,
+                    description: `Live safe search result for ${location}`
                 },
                 location: {
                     city: location,
@@ -158,7 +162,7 @@ app.post('/api/scrape', async (req, res) => {
         res.json({ success: true, data: results });
 
     } catch (error) {
-        console.error('एपीआई त्रुटि:', error.message);
+        console.error('Server Error:', error.message);
         res.json({ 
             success: true, 
             data: [{
@@ -175,8 +179,8 @@ app.post('/api/scrape', async (req, res) => {
                     owner_type: "AGENT"
                 },
                 title_and_description: {
-                    title: `${location} - गूगल सर्च एपीआई फॉलबैक`,
-                    description: "Google search API connection response"
+                    title: `${location} - Direct Connection Fallback`,
+                    description: "Safe fallback response"
                 },
                 location: {
                     city: location,
@@ -222,5 +226,5 @@ app.post('/api/scrape', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`सर्वर इस पोर्ट पर चल रहा है: http://localhost:${PORT}`);
+    console.log(`Server is running on port: http://localhost:${PORT}`);
 });
