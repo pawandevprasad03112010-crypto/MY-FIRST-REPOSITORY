@@ -16,9 +16,7 @@ app.post('/api/scrape', async (req, res) => {
     }
 
     try {
-        // Direct 99acres search URL format
         let formattedLoc = location.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        let targetUrl = `https://www.spinny.com/` + // placeholder or direct 99acres search
         let searchUrl = `https://www.99acres.com/property-in-${formattedLoc}-ffid`;
 
         console.log(`Scraping 99acres directly: ${searchUrl}`);
@@ -34,7 +32,6 @@ app.post('/api/scrape', async (req, res) => {
         const $ = cheerio.load(response.data);
         let results = [];
 
-        // 99acres property cards selector
         $('.tuple__contentContainer, .propertyCard, [data-label="tuple"]').each((i, element) => {
             let title = $(element).find('.tuple__hgDetails, h2, a').first().text().trim();
             let description = $(element).find('.tuple__desc, .list_header').text().trim();
@@ -47,7 +44,6 @@ app.post('/api/scrape', async (req, res) => {
 
             if (!title) return;
 
-            // Owner wali listing ko chhant kar bahar karein, sirf broker/agent rakhein
             let combinedText = (title + " " + description).toLowerCase();
             if (combinedText.includes('owner')) {
                 return; 
