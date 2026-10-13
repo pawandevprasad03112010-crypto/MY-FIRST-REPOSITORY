@@ -1,7 +1,7 @@
+import os
 from flask import Flask, render_template_string, request, jsonify
 import requests
 from bs4 import BeautifulSoup
-import json
 
 app = Flask(__name__)
 
@@ -20,7 +20,6 @@ HTML_TEMPLATE = """
         input[type="text"] { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { background: #d32f2f; color: white; border: none; padding: 12px 20px; margin-top: 20px; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer; }
         button:hover { background: #b71c1c; }
-        .result-box { margin-top: 20px; background: #eef2f3; padding: 15px; border-radius: 4px; word-break: break-all; max-height: 300px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -57,17 +56,15 @@ def scrape():
         soup = BeautifulSoup(response.text, 'html.parser')
         
         listings_data = []
-        # 99acres के कार्ड्स ढूंढना
         cards = soup.select("article.srpTuple__tupleCard, .projectTuple__card, .tuple__card")
 
         for card in cards:
-            # चेक करें कि ब्रोकर है या नहीं
             posted_by = ""
             posted_elem = card.select_one(".srpTuple__ownerInfo, .tuple__postedBy")
             if posted_elem:
                 posted_by = posted_elem.get_text().strip()
 
-            # अगर ओनर है तो स्किप करें (सिर्फ ब्रोकर्स रखें)
+            # ओनर को स्किप करें, सिर्फ ब्रोकर्स रखें
             if "owner" in posted_by.lower():
                 continue
 
@@ -100,5 +97,6 @@ def scrape():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-        
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+    
