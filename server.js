@@ -20,9 +20,9 @@ app.get('/', (req, res) => {
             <title>Phone File Hoster</title>
             <style>
                 body { font-family: Arial, sans-serif; background: #121212; color: #ffffff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; }
-                .card { background: #1e1e1e; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
+                .card { background: #1e1e1e; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; box-sizing: border-box; }
                 h2 { color: #4CAF50; margin-bottom: 20px; }
-                input[type="file"] { margin: 20px 0; width: 100%; padding: 12px; background: #2c2c2c; border: 1px dashed #555; border-radius: 8px; color: #fff; }
+                input[type="file"] { margin: 20px 0; width: 100%; padding: 12px; background: #2c2c2c; border: 1px dashed #555; border-radius: 8px; color: #fff; box-sizing: border-box; }
                 button { background: #4CAF50; color: white; border: none; padding: 14px 20px; width: 100%; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; }
                 button:hover { background: #45a049; }
             </style>
@@ -65,7 +65,7 @@ app.post('/upload', (req, res) => {
             <title>Link Taiyar Hai</title>
             <style>
                 body { font-family: Arial, sans-serif; background: #121212; color: #ffffff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; }
-                .card { background: #1e1e1e; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 100%; max-width: 420px; text-align: center; }
+                .card { background: #1e1e1e; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 100%; max-width: 420px; text-align: center; box-sizing: border-box; }
                 input[type="text"] { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #444; border-radius: 8px; text-align: center; font-size: 14px; background: #2c2c2c; color: #fff; box-sizing: border-box; }
                 .btn { background: #2196F3; color: white; border: none; padding: 14px 20px; width: 100%; border-radius: 8px; font-size: 16px; cursor: pointer; text-decoration: none; display: inline-block; font-weight: bold; box-sizing: border-box; margin-top: 10px; }
                 .btn:hover { background: #1976D2; }
@@ -82,7 +82,7 @@ app.post('/upload', (req, res) => {
     `);
 });
 
-// View Page jahan poora text ek sath copy hoga
+// View Page jahan poora text select aur copy hoga
 app.get('/view/:id', (req, res) => {
     const fileId = req.params.id;
     const content = textStorage[fileId];
@@ -104,30 +104,45 @@ app.get('/view/:id', (req, res) => {
                 textarea { width: 100%; height: 350px; padding: 12px; border: 1px solid #444; border-radius: 8px; font-size: 16px; background: #2c2c2c; color: #fff; resize: vertical; box-sizing: border-box; }
                 button { background: #FF9800; color: white; border: none; padding: 14px 20px; width: 100%; border-radius: 8px; font-size: 18px; cursor: pointer; margin-top: 15px; font-weight: bold; }
                 button:hover { background: #F57C00; }
-                #msg { color: #4CAF50; font-weight: bold; margin-top: 12px; text-align: center; }
+                #msg { color: #4CAF50; font-weight: bold; margin-top: 12px; text-align: center; font-size: 16px; }
             </style>
         </head>
         <body>
             <div class="container">
-                <h3 style="margin-top:0;">Poora Text (A to Z)</h3>
+                <h3 style="margin-top:0;">Poora Text (A to Z) Select Karein</h3>
                 <textarea id="textContent">${content}</textarea>
-                <button onclick="copyAllText()">Ek Click Me Poora Copy Karein</button>
+                <button onclick="selectAllText()">Text Select & Copy Karein</button>
                 <div id="msg"></div>
             </div>
 
             <script>
-                function copyAllText() {
-                    const textAreas = document.getElementById('textContent');
-                    textAreas.select();
-                    textAreas.setSelectionRange(0, 999999); // Mobile compatibility ke liye
+                function selectAllText() {
+                    const txtBox = document.getElementById('textContent');
+                    txtBox.focus();
+                    txtBox.select();
+                    txtBox.setSelectionRange(0, 999999); // Mobile ke liye poora select karega
                     
                     try {
-                        navigator.clipboard.writeText(textAreas.value).then(() => {
-                            document.getElementById('msgถาน" || document.getElementById('msg').innerText = "Poora text successfully copy ho gaya!";
+                        navigator.clipboard.writeText(txtBox.value).then(() => {
+                            document.getElementById('msg').innerText = "✅ Poora text copy ho gaya!";
+                        }).catch(err => {
+                            fallbackCopy(txtBox);
                         });
+                    } catch (e) {
+                        fallbackCopy(txtBox);
+                    }
+                }
+
+                function fallbackCopy(txtBox) {
+                    try {
+                        var successful = document.execCommand('copy');
+                        if(successful) {
+                            document.getElementById('msg').innerText = "✅ Poora text copy ho gaya!";
+                        } else {
+                            document.getElementById('msg').innerText = "👉 Text select ho gaya hai, ab 'Copy' par dabayein!";
+                        }
                     } catch (err) {
-                        document.execCommand('copy');
-                        document.getElementById('msg').innerText = "Poora text copy ho gaya!";
+                        document.getElementById('msg').innerText = "👉 Neeche box mein text select hai, long-press karke copy karein.";
                     }
                 }
             </script>
