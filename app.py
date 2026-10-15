@@ -3,7 +3,7 @@ import re
 import time
 import requests
 import boto3
-from flask import Flask, render_template_string, request, jsonify
+from flask import Flask, render_template_string, request, jsonify, Response
 
 app = Flask(__name__)
 
@@ -20,7 +20,6 @@ s3_client = boto3.client(
     region_name=REGION
 )
 
-# Complete Frontend & Backend Template
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="hi">
@@ -54,18 +53,15 @@ HTML_TEMPLATE = """
 <body>
     <div class="container">
         <h2>ONLY BROKER - Image Manager & S3 Migrator</h2>
-        <p>Yahan apne image URLs paste karein (chahe Array brackets `[]` mein ho ya plain text):</p>
+        <p>Yahan apne image URLs paste karein:</p>
         <textarea id="urlInput" placeholder="Yahan URLs daalein..."></textarea>
         <button class="btn-primary" onclick="loadImagesPreview()">Images Load Karein</button>
 
-        <!-- Preview Grid -->
         <div class="grid-container" id="imageGrid"></div>
         
-        <!-- Upload Button -->
         <button class="btn-upload" id="uploadBtn" onclick="uploadToS3()">S3 Par Upload Karein</button>
         <div class="loader" id="loader">🔄 S3 par upload ho raha hai, kripya intezaar karein...</div>
 
-        <!-- JSON Output Section -->
         <div class="output-section" id="outputSection">
             <h3>S3 Uploaded URLs (JSON Format):</h3>
             <div class="output-box" id="jsonOutput"></div>
@@ -98,11 +94,13 @@ HTML_TEMPLATE = """
             grid.innerHTML = "";
 
             currentUrls.forEach((url, index) => {
+                // Proxy route ka use karke 99acres jaise restricted URLs ko bhi screen par dikhayenge
+                let proxyUrl = `/proxy?url=${encodeURIComponent(url)}`;
                 let card = document.createElement("div");
                 card.className = "image-card";
                 card.innerHTML = `
                     <button class="delete-btn" onclick="removeImage(${index})">&times;</button>
-                    <img src="${url}" onerror="this.src='https://via.placeholder.com/150?text=Invalid+Image'">
+                    <img src="${proxyUrl}" onerror="this.src='https://via.placeholder.com/150?text=Loading+Error'">
                     <p style="font-size:10px; color:#666; margin:5px 0 0 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${url}</p>
                 `;
                 grid.appendChild(card);
@@ -167,6 +165,16 @@ HTML_TEMPLATE = """
 def index():
     return render_template_string(HTML_TEMPLATE)
 
+@app.route("/proxy")
+def proxy():
+    img_url = request.args.get("url")
+    try:
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        resp = requests.get(img_url, headers=headers, timeout=10)
+        return Response(resp.content, content_type=resp.headers.get("content-type", "image/jpeg"))
+    except Exception as e:
+        return "Error fetching image", 400
+
 @app.route("/upload_batch", methods=["POST"])
 def upload_batch():
     try:
@@ -174,9 +182,10 @@ def upload_batch():
         urls = data.get("urls", [])
         s3_uploaded_urls = []
         
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
         for idx, url in enumerate(urls):
             try:
-                res = requests.get(url, timeout=10)
+                res = requests.get(url, headers=headers, timeout=10)
                 if res.status_code == 200:
                     ext = url.split("?")[0].split(".")[-1]
                     if ext not in ["jpg", "jpeg", "png", "webp"]:
@@ -202,4 +211,4 @@ def upload_batch():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-            
+    
